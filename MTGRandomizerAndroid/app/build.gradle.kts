@@ -11,8 +11,8 @@ android {
         applicationId = "com.pixeledberry.mtgrandomizer"
         minSdk = 26
         targetSdk = 34
-        versionCode = 2
-        versionName = "1.1.0"
+        versionCode = 3
+        versionName = "1.2.0"
     }
 
     // One fixed signing key for every build, so a new version installs over an older one and keeps its decks.

@@ -50,6 +50,12 @@ footer{color:var(--mut);font-size:13px;padding-top:18px;padding-bottom:30px}foot
 #toast{position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));max-width:528px;margin:0 auto;background:var(--acc);color:var(--accink);padding:10px 14px;border-radius:10px;text-align:center;z-index:60;box-shadow:0 4px 16px rgba(0,0,0,.3)}
 /* pool builder */
 .khint{margin:6px 0 10px}
+.cols{display:flex;gap:8px;margin:6px 0 8px}
+.cols button{flex:none;width:40px;height:40px;border-radius:50%;border:2px solid transparent;background:none;padding:2px;opacity:.4;filter:grayscale(.7);transition:opacity .12s,transform .12s,filter .12s}
+.cols button.on{opacity:1;filter:none;border-color:var(--acc);transform:scale(1.08)}
+.cols img{display:block;width:100%;height:100%}
+.cmode{margin:0 0 6px}.cmode button{font-size:13px;padding:8px 2px}
+.addrow{display:flex;gap:8px;flex-wrap:wrap}
 .combo{display:flex;margin:4px 0 8px}.vin{position:relative;flex:1;min-width:0;display:flex}
 .vin input{padding-right:42px}.combo:not(.nol) .vin input{border-radius:10px 0 0 10px}
 #vclr{position:absolute;right:2px;top:50%;transform:translateY(-50%);width:40px;height:40px;border:0;background:none;color:var(--mut);font-size:24px;line-height:1;padding:0}
@@ -167,7 +173,11 @@ footer{color:var(--mut);font-size:13px;padding-top:18px;padding-bottom:30px}foot
 <div id="upd" class="why upd" hidden role="status"></div>
 <nav><button id="t1" class="on">Randomize</button><button id="t2">Decks</button><button id="t3">History</button></nav>
 <section id="v1">
- <label class="edl" style="margin-top:0">Search by<select id="kind"></select></label>
+ <span class="edl" style="margin-top:0" id="collab">Colors</span>
+ <div class="cols" id="cols" role="group" aria-labelledby="collab"></div>
+ <div class="seg cmode" id="cmode" role="group" aria-label="How to match the colors" hidden><button type="button" data-m=">=">Including</button><button type="button" data-m="=">Exactly</button><button type="button" data-m="<=">At most</button><button type="button" data-m="id">Commander</button></div>
+ <p class="legend khint" id="colh"></p>
+ <label class="edl">Search by<select id="kind"></select></label>
  <p class="legend khint" id="khint"></p>
  <label class="edl" for="val" id="vlab"></label>
  <div class="combo" id="combo"><div class="vin"><input type="text" id="val" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go"><button id="vclr" type="button" aria-label="Clear" hidden>×</button></div><button id="pick" type="button" aria-label="Show the full list">▾ All</button></div>
@@ -175,7 +185,7 @@ footer{color:var(--mut);font-size:13px;padding-top:18px;padding-bottom:30px}foot
  <div class="sug" id="sug"></div>
  <div class="pool" id="pool"></div>
  <p class="legend" id="poolh" hidden>Tap a filter to switch between <b>must have</b> and <b>must not have</b>.</p>
- <button class="smallb" id="addc" type="button">+ Add another filter</button>
+ <div class="addrow"><button class="smallb" id="addc" type="button">+ Add another filter</button><button class="smallb" id="clrall" type="button" hidden>Clear all</button></div>
  <div class="dicew" id="dicew"><button id="roll" type="button" aria-label="Roll a random card"></button><span class="dicel">Tap the dice to roll</span></div>
  <button class="pri" id="sbtn" type="button" hidden>🔍 Search</button>
  <p class="qp" id="qp"></p>
@@ -230,7 +240,16 @@ footer{color:var(--mut);font-size:13px;padding-top:18px;padding-bottom:30px}foot
 </div></div>
 <div id="toast" hidden role="status"></div>
 <script type="text/markdown" id="chlog">
-### v1.1.0 (latest)
+### v1.2.0 (latest)
+- **Colors row.** Tap the mana symbols at the top of the Randomize tab (white, blue, black, red, green, colorless) and choose **Including**, **Exactly**, **At most** or **Commander** (fits a Commander deck of those colors), like Scryfall's Advanced Search.
+- **Every Scryfall Advanced Search field.** New Search by choices: Power, Toughness, Loyalty, Price (dollars, euros or MTGO tickets), Block, Criteria (all of Scryfall's "is:" options plus land cycles like Fetchland and Shockland), Mana cost, Flavor text, Lore finder, Watermark, Year printed, Language and Game (Paper, Arena, MTGO). Formats can now be **Banned in** or **Restricted in**, and Rarity has ranges like **Rare or higher**.
+- **Type numbers your way.** Number choices take `3`, `5+`, `2-4` or `<=2`; prices take `<5`, `20+` or `eur<10`.
+- **Easier to find things.** The Search by list is now grouped, and **Clear all** removes every filter at once.
+- **More sort orders** in search mode: power, toughness, euro and MTGO prices, and set review order.
+- Cards rolled in another language show their printed name next to the English one.
+- The old "Color" choice in Search by is replaced by the Colors row, so color filters added in v1.1.0 are removed once.
+
+### v1.1.0
 - **Rebuilt to look and work like TickedOff.** Same layout, menu and themes (Auto, Light, Default, Dark, five high contrast, five low contrast and six seasonal, plus your own colors), update notices and in-app changelog.
 - **Search by Type, Function, Art and more.** Choose what to search by (Type, Function, Art, Keyword, Color, Mana value, Rarity, Set, Format, Artist, Card name, Rules text or your own Scryfall search), then type or pick a value. Suggestions appear as you type, and **▾ All** lists every value you can pick.
 - **Scryfall Tagger built in.** Every function tag (otag, for example `removal` or `ramp`) and art tag (for example `dragon` or `moon`), with how many cards each one covers.
@@ -251,7 +270,7 @@ const ls={get(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v==nul
 const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const fmtN=n=>Number(n||0).toLocaleString('en-US');
-const APPV='1.1.0';
+const APPV='1.2.0';
 const IOSAPP=!!(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.ios);
 const API='https://api.scryfall.com',PAGE=175,HMAX=100,hex=/^#[0-9a-f]{6}$/i;
 const finePtr=matchMedia('(pointer:fine)').matches;
@@ -263,11 +282,11 @@ const IMG=/^https:\/\/cards\.scryfall\.io\/normal\/(?:front|back)\/[\w\/.-]+\.(?
 function slim(c){
  const f=Array.isArray(c.card_faces)?c.card_faces:[],f0=f[0]||{},f1=f[1]||{},top=c.image_uris;
  const im=(top||f0.image_uris||{}).normal||'',im2=!top&&f1.image_uris?f1.image_uris.normal||'':'';
- return{id:c.id,n:c.name,mc:c.mana_cost||f.map(x=>x.mana_cost).filter(Boolean).join(' // '),t:c.type_line||f.map(x=>x.type_line).filter(Boolean).join(' // '),cmc:typeof c.cmc=='number'?c.cmc:0,ci:(c.colors||f0.colors||[]).join(''),r:c.rarity||'',s:c.set||'',sn:c.set_name||'',cn:c.collector_number||'',a:c.artist||f0.artist||'',u:c.scryfall_uri||'',im,im2,f2:im2?f1.name||'':'',l:c.layout||''}}
+ return{id:c.id,n:c.name,mc:c.mana_cost||f.map(x=>x.mana_cost).filter(Boolean).join(' // '),t:c.type_line||f.map(x=>x.type_line).filter(Boolean).join(' // '),cmc:typeof c.cmc=='number'?c.cmc:0,ci:(c.colors||f0.colors||[]).join(''),r:c.rarity||'',s:c.set||'',sn:c.set_name||'',cn:c.collector_number||'',a:c.artist||f0.artist||'',u:c.scryfall_uri||'',im,im2,f2:im2?f1.name||'':'',l:c.layout||'',pn:c.lang&&c.lang!='en'?c.printed_name||f0.printed_name||'':''}}
 function cleanCard(x){
  if(!x||typeof x!='object'||typeof x.id!='string'||!/^[0-9a-f-]{36}$/.test(x.id)||typeof x.n!='string')return null;
  const S=(v,n)=>typeof v=='string'?v.slice(0,n):'';
- return{id:x.id,n:S(x.n,150),mc:S(x.mc,80),t:S(x.t,150),cmc:typeof x.cmc=='number'&&isFinite(x.cmc)?x.cmc:0,ci:S(x.ci,5).replace(/[^WUBRG]/g,''),r:S(x.r,12),s:S(x.s,8),sn:S(x.sn,80),cn:S(x.cn,12),a:S(x.a,120),u:/^https:\/\/scryfall\.com\//.test(x.u)?S(x.u,300):'',im:IMG.test(x.im)?x.im:'',im2:IMG.test(x.im2)?x.im2:'',f2:S(x.f2,150),l:S(x.l,24).replace(/[^a-z_]/g,'')}}
+ return{id:x.id,n:S(x.n,150),mc:S(x.mc,80),t:S(x.t,150),cmc:typeof x.cmc=='number'&&isFinite(x.cmc)?x.cmc:0,ci:S(x.ci,5).replace(/[^WUBRG]/g,''),r:S(x.r,12),s:S(x.s,8),sn:S(x.sn,80),cn:S(x.cn,12),a:S(x.a,120),u:/^https:\/\/scryfall\.com\//.test(x.u)?S(x.u,300):'',im:IMG.test(x.im)?x.im:'',im2:IMG.test(x.im2)?x.im2:'',f2:S(x.f2,150),l:S(x.l,24).replace(/[^a-z_]/g,''),pn:S(x.pn,150)}}
 const imgUrl=(c,size,back)=>{const u=back&&c.im2?c.im2:c.im;return u?u.replace('/normal/','/'+size+'/'):''};
 const sym=x=>'<img class="ms" alt="{'+esc(x)+'}" src="https://svgs.scryfall.io/card-symbols/'+encodeURIComponent(x.replace(/\//g,''))+'.svg">';
 const mana=s=>String(s||'').split(/(\{[^}]+\})/).map(p=>/^\{[^}]+\}$/.test(p)?sym(p.slice(1,-1)):esc(p)).join('');
@@ -276,7 +295,7 @@ const PIPS={1:[[32,32]],2:[[20,20],[44,44]],3:[[20,20],[32,32],[44,44]],4:[[20,2
 const dieSvg=f=>'<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false">'+PIPS[f].map(([x,y])=>'<circle cx="'+x+'" cy="'+y+'" r="5.8" fill="currentColor"/>').join('')+'</svg>';
 function dice(on){['#roll','#vroll'].forEach(s=>{const b=$(s);b.classList.toggle('busy',on);if(!on)b.innerHTML=dieSvg(1+Math.floor(Math.random()*6))})}
 // ---------- settings ----------
-const ORDERS=[['name','Name','asc'],['released','Newest first','desc'],['cmc','Mana value','asc'],['color','Color','asc'],['rarity','Rarest first','desc'],['edhrec','Most played (EDHREC)','asc'],['usd','Price, highest first','desc'],['artist','Artist','asc'],['set','Set','asc']];
+const ORDERS=[['name','Name','asc'],['released','Newest first','desc'],['set','Set and number','asc'],['rarity','Rarest first','desc'],['color','Color','asc'],['cmc','Mana value','asc'],['power','Power, highest first','desc'],['toughness','Toughness, highest first','desc'],['edhrec','Most played (EDHREC)','asc'],['usd','Price (USD), highest first','desc'],['eur','Price (EUR), highest first','desc'],['tix','Price (MTGO tix), highest first','desc'],['artist','Artist','asc'],['review','Set review order','asc']];
 const ORD=()=>ORDERS.find(o=>o[0]==cfg.order)||ORDERS[0];
 function cleanCfg(c){c=c&&typeof c=='object'?c:{};return{rand:c.rand!==false,uniq:['cards','art','prints'].includes(c.uniq)?c.uniq:'cards',extras:c.extras===true,order:ORDERS.some(o=>o[0]==c.order)?c.order:'name',last:typeof c.last=='string'?c.last.slice(0,40):''}}
 let cfg=cleanCfg(ls.get('mtgr_cfg',null));
@@ -395,41 +414,70 @@ function errText(e){
  if(s>=500)return'Scryfall isn’t responding right now (usually a problem on their side). Try again in a moment.';
  return'Couldn’t reach Scryfall. Check your connection and try again.'}
 // ---------- what you can search by ----------
+// The same fields as Scryfall's Advanced Search (scryfall.com/advanced), plus Tagger tags and keywords.
+// grp starts a group in the Search by list. Colors have their own row above it.
+const NUMHINT='Type 3 for exactly 3, 3+ for 3 or more, 2-4 for a range, or use < > <= >= like <=2.';
 const KINDS=[
- {k:'type',n:'Type',s:'Type',lab:'Choose a type',ph:'e.g. Zombie, Angel, Instant',hint:'Card types, creature types and every other subtype.'},
+ {k:'type',grp:'Most used',n:'Type',s:'Type',lab:'Choose a type',ph:'e.g. Zombie, Angel, Instant',hint:'Card types, creature types and every other subtype.'},
  {k:'otag',n:'Function (oracle tag)',s:'Function',lab:'Choose a function',ph:'e.g. removal, ramp, draw',hint:'What a card does, tagged by the Scryfall community (otag). Example: removal, ramp, tutor.'},
  {k:'atag',n:'Art (art tag)',s:'Art',lab:'Choose an art tag',ph:'e.g. dragon, moon, cat',hint:'What is in the artwork, tagged by the Scryfall community.'},
  {k:'kw',n:'Keyword',s:'Keyword',lab:'Choose a keyword',ph:'e.g. Flying, Landfall',hint:'Keyword abilities, keyword actions and ability words.'},
- {k:'color',n:'Color',s:'Color',lab:'Choose a color',ph:'e.g. Red, Azorius',hint:'Single colors include multicolored cards. Mono, guild and shard picks mean exactly those colors.'},
- {k:'mv',n:'Mana value',s:'Mana value',lab:'Choose a mana value',ph:'e.g. 3 or 7+',hint:'Total mana cost. Type 7+ for seven or more.'},
- {k:'rarity',n:'Rarity',s:'Rarity',lab:'Choose a rarity',ph:'e.g. Mythic rare'},
- {k:'set',n:'Set',s:'Set',lab:'Choose a set',ph:'e.g. Dominaria or DOM',hint:'Newest sets first. You can type the set name or its code.'},
- {k:'format',n:'Format (legal in)',s:'Legal in',lab:'Choose a format',ph:'e.g. Commander'},
- {k:'artist',n:'Artist',s:'Artist',lab:'Choose an artist',ph:'e.g. Rebecca Guay'},
  {k:'name',n:'Card name',s:'Name',lab:'Part of a card name',ph:'e.g. bolt',nolist:1},
  {k:'text',n:'Rules text',s:'Text',lab:'Words in the rules text',ph:'e.g. draw a card',nolist:1},
- {k:'raw',n:'Scryfall search (advanced)',s:'Search',lab:'Your own Scryfall search',ph:'e.g. t:dragon pow>=5',hint:'Anything from the Scryfall search syntax guide (scryfall.com/docs/syntax).',nolist:1}];
+ {k:'mv',grp:'Numbers',n:'Mana value',s:'Mana value',lab:'Mana value',ph:'e.g. 3, 7+ or <=2',hint:NUMHINT},
+ {k:'pow',n:'Power',s:'Power',lab:'Power',ph:'e.g. 5+ or *',hint:NUMHINT+' * means power that changes.'},
+ {k:'tou',n:'Toughness',s:'Toughness',lab:'Toughness',ph:'e.g. 1 or 6+',hint:NUMHINT+' * means toughness that changes.'},
+ {k:'loy',n:'Loyalty',s:'Loyalty',lab:'Starting loyalty',ph:'e.g. 3 or 5+',hint:NUMHINT},
+ {k:'price',n:'Price',s:'Price',lab:'Price',ph:'e.g. under 5, 20+, eur<10',hint:'US dollars unless you start with eur or tix. Examples: <5, 20+, 1-3, eur<10, tix>=1.'},
+ {k:'rarity',grp:'Cards and printings',n:'Rarity',s:'Rarity',lab:'Choose a rarity',ph:'e.g. Mythic rare'},
+ {k:'set',n:'Set',s:'Set',lab:'Choose a set',ph:'e.g. Dominaria or DOM',hint:'Newest sets first. You can type the set name or its code.'},
+ {k:'block',n:'Block or group',s:'Block',lab:'Choose a block or group',ph:'e.g. Khans of Tarkir',hint:'A whole block of sets, like Innistrad or Ravnica.'},
+ {k:'crit',n:'Criteria (is: / is not:)',s:'Is',lab:'Choose a criteria',ph:'e.g. Full Art, Commander, Fetchland',hint:'Card properties from Scryfall’s Advanced Search. Add it as a filter and tap the chip to switch to “is not”.'},
+ {k:'artist',n:'Artist',s:'Artist',lab:'Choose an artist',ph:'e.g. Rebecca Guay'},
+ {k:'mana',n:'Mana cost',s:'Mana cost',lab:'Mana cost',ph:'e.g. {2}{R}{R} or 2RR',hint:'Cards whose cost has at least these symbols. {W/U} is hybrid, {W/P} is Phyrexian.',nolist:1},
+ {k:'flavor',n:'Flavor text',s:'Flavor',lab:'Words in the flavor text',ph:'e.g. dragon',nolist:1},
+ {k:'lore',n:'Lore finder',s:'Lore',lab:'Lore finder',ph:'e.g. Urza, Jace, Dominaria',hint:'Finds every card that mentions a character, place or creature anywhere: name, text, flavor or art.',nolist:1},
+ {k:'wm',n:'Watermark',s:'Watermark',lab:'Choose a watermark',ph:'e.g. orzhov, phyrexian'},
+ {k:'year',n:'Year printed',s:'Year',lab:'Year printed',ph:'e.g. 2020, 2015+ or <2003',hint:'The year that printing came out. '+NUMHINT},
+ {k:'lang',n:'Language',s:'Language',lab:'Choose a language',ph:'e.g. Japanese',hint:'Shows cards printed in that language, with the foreign card picture.'},
+ {k:'format',grp:'Where you can play',n:'Format (legal, banned, restricted)',s:'Format',lab:'Choose a format',ph:'e.g. Commander, Banned in Modern'},
+ {k:'game',n:'Game (Paper, Arena, MTGO)',s:'Game',lab:'Where the card exists',ph:'e.g. MTG Arena'},
+ {k:'raw',grp:'Advanced',n:'Scryfall search (advanced)',s:'Search',lab:'Your own Scryfall search',ph:'e.g. t:dragon pow>=5',hint:'Anything from the Scryfall search syntax guide (scryfall.com/docs/syntax).',nolist:1}];
+const NUMK={mv:'mv',pow:'pow',tou:'tou',loy:'loy',year:'year'};
 const KBY={};KINDS.forEach(x=>KBY[x.k]=x);
 const isTag=k=>k=='otag'||k=='atag';
-const COLORS=[['White','c:w','Colors'],['Blue','c:u','Colors'],['Black','c:b','Colors'],['Red','c:r','Colors'],['Green','c:g','Colors'],['Colorless','c=c','Colors'],['Multicolored','c:m','Colors'],
- ['Mono-white','c=w','Mono-colored'],['Mono-blue','c=u','Mono-colored'],['Mono-black','c=b','Mono-colored'],['Mono-red','c=r','Mono-colored'],['Mono-green','c=g','Mono-colored'],
- ['Azorius (white-blue)','c=wu','Two colors'],['Dimir (blue-black)','c=ub','Two colors'],['Rakdos (black-red)','c=br','Two colors'],['Gruul (red-green)','c=rg','Two colors'],['Selesnya (green-white)','c=gw','Two colors'],['Orzhov (white-black)','c=wb','Two colors'],['Izzet (blue-red)','c=ur','Two colors'],['Golgari (black-green)','c=bg','Two colors'],['Boros (red-white)','c=rw','Two colors'],['Simic (green-blue)','c=gu','Two colors'],
- ['Esper (white-blue-black)','c=wub','Three colors'],['Grixis (blue-black-red)','c=ubr','Three colors'],['Jund (black-red-green)','c=brg','Three colors'],['Naya (red-green-white)','c=rgw','Three colors'],['Bant (green-white-blue)','c=gwu','Three colors'],['Abzan (white-black-green)','c=wbg','Three colors'],['Jeskai (blue-red-white)','c=urw','Three colors'],['Sultai (black-green-blue)','c=bgu','Three colors'],['Mardu (red-white-black)','c=rwb','Three colors'],['Temur (green-blue-red)','c=gur','Three colors'],
- ['Five colors','c=wubrg','Five colors']];
-const FORMATS=[['Standard','standard'],['Pioneer','pioneer'],['Modern','modern'],['Legacy','legacy'],['Vintage','vintage'],['Commander','commander'],['Pauper','pauper'],['Pauper Commander','paupercommander'],['Brawl','brawl'],['Standard Brawl','standardbrawl'],['Historic','historic'],['Timeless','timeless'],['Alchemy','alchemy'],['Oathbreaker','oathbreaker'],['Penny Dreadful','penny'],['Premodern','premodern'],['Old School','oldschool'],['PreDH','predh'],['Duel Commander','duel'],['Gladiator','gladiator'],['Future Standard','future']];
+const FORMATS=[['Standard','standard'],['Future Standard','future'],['Historic','historic'],['Timeless','timeless'],['Gladiator','gladiator'],['Pioneer','pioneer'],['Modern','modern'],['Legacy','legacy'],['Pauper','pauper'],['Vintage','vintage'],['Penny Dreadful','penny'],['Commander','commander'],['Oathbreaker','oathbreaker'],['Standard Brawl','standardbrawl'],['Brawl','brawl'],['Competitive Brawl','competitivebrawl'],['Alchemy','alchemy'],['Pauper Commander','paupercommander'],['Duel Commander','duel'],['Old School 93/94','oldschool'],['Premodern','premodern'],['PreDH','predh'],['Tiny Leaders: Reborn','tlr']];
+// Scryfall's Advanced Search "Criteria" list (is:value=label), with a few labels made clearer.
+const SCRY_IS='adventure=Adventure|arenaid=Has an Arena ID|artseries=Art Series|artist=Artist|artistmisprint=Artist Misprint|lights=Attraction Lights|atypical=Atypical|augmentation=Augment|back=Back|bear=Bear|beginnerbox=Beginner Box|booster=Booster|borderless=Borderless|brawlcommander=Brawl Commander|buyabox=Buy-a-Box|cardmarket=Has a Cardmarket ID|class=Class Layout|ci=Color Indicator|colorshifted=Colorshifted|commander=Commander|companion=Companion|contentwarning=Content Warning|covered=Covered|manland=Creature Land|datestamped=Datestamped|default=Default|digital=Digital|doublesided=Double Sided|duelcommander=Duel Commander|etb=ETB (enters-the-battlefield effect)|englishart=English Art|etch=Etched|extended=Extended Art|extra=Extra|ff=Final Fantasy|firstprint=First Printing|flavorname=Flavor Name|flavor=Has flavor text|flip=Flip|foil=Foil|fbb=Foreign Black Border|fwb=Foreign White Border|frenchvanilla=French Vanilla|fullart=Full Art|funny=Funny|future=Future frame|gamechanger=Game Changer|gameday=Game Day|hires=High-resolution scan|historic=Historic|splitmana=Hybrid Mana|illustration=Illustration|intropack=Intro Pack|invitational=Invitational Card|leveler=Leveler|localizedname=Localized Name|mtgoid=Has an MTGO ID|masterpiece=Masterpiece|meld=Meld|modal=Modal|mdfc=Modal Double Faced|modern=Modern frame|multiverse=Has a Multiverse ID|new=New frame|nonfoil=Nonfoil|notuniversesbeyond=Not Universes Beyond|oathbreaker=Oathbreaker|old=Old frame|outlaw=Outlaw|oversized=Oversized|partner=Paired Commander|paperart=Paper Art|party=Party|permanent=Permanent|phyrexia=Phyrexian Mana|planar=Planar|planeswalkerdeck=Planeswalker Deck|prepare=Prepare|prerelease=Prerelease Promo|printedtext=Printed Text|promo=Promo|related=Related|release=Release Promo|reprint=Reprint|reserved=Reserved List|resource=Has a Resource ID|reversible=Reversible|stamp=Security Stamp|showcase=Showcase|spell=Spell|spellbook=Spellbook|spikey=Spikey|split=Split Card|stamped=Stamped|startercollection=Starter Collection|starterdeck=Starter Deck|story=Story Spotlight|tcgplayer=Has a TCGplayer ID|textless=Textless|token=Token|tombstone=Tombstone|transform=Transform|translucent=Translucent|onlyprint=Only one printing|universesbeyond=Universes Beyond|vanilla=Vanilla|variation=Variation|watermark=Has a watermark|worthy=Worthy';
+const POPULAR_IS=['commander','permanent','spell','reprint','firstprint','fullart','borderless','showcase','extended','promo','vanilla','frenchvanilla','etb','manland','reserved','gamechanger','universesbeyond','funny','doublesided','token'];
+const LANDS_IS=[['dual','Dual land (original)'],['fetchland','Fetchland'],['shockland','Shockland'],['checkland','Checkland'],['painland','Painland'],['fastland','Fastland'],['slowland','Slowland'],['bounceland','Bounceland'],['gainland','Gainland'],['filterland','Filterland'],['scryland','Scryland'],['pathway','Pathway'],['bikeland','Bikeland (cycling dual)'],['canopyland','Canopy land'],['triland','Triland'],['tricycleland','Tricycle land'],['shadowland','Shadowland'],['storageland','Storage land'],['tangoland','Tango land (battle land)'],['snarl','Snarl']];
+const CRIT=(()=>{const all=SCRY_IS.split('|').map(x=>x.split('='));
+ return POPULAR_IS.map(q=>({v:all.find(a=>a[0]==q)[1],q:'is:'+q,g:'Popular'}))
+  .concat(LANDS_IS.map(([q,v])=>({v,q:'is:'+q,g:'Land cycles'})),all.filter(a=>!POPULAR_IS.includes(a[0])).map(([q,v])=>({v,q:'is:'+q,g:'Everything else (A–Z)'})))})();
+const LANGS=[['English','en'],['Spanish','es'],['French','fr'],['German','de'],['Italian','it'],['Portuguese','pt'],['Japanese','ja'],['Korean','ko'],['Russian','ru'],['Simplified Chinese','zhs'],['Traditional Chinese','zht'],['Hebrew','he'],['Latin','la'],['Ancient Greek','grc'],['Arabic','ar'],['Sanskrit','sa'],['Phyrexian','ph'],['Quenya','qya'],['Dwarvish','dw'],['Klingon','tlh'],['Any language','any']];
+const YEAR=new Date().getFullYear();
+const nums=(key,a,b)=>{const o=[];for(let n=a;n<=b;n++)o.push({v:String(n),q:key+'='+n});return o};
 const LISTS={
- color:COLORS.map(([v,q,g])=>({v,q,g})),
- rarity:[['Common','common'],['Uncommon','uncommon'],['Rare','rare'],['Mythic rare','mythic'],['Special','special'],['Bonus','bonus']].map(([v,r])=>({v,q:'r:'+r})),
- format:FORMATS.map(([v,f])=>({v,q:'f:'+f})),
- mv:[...Array(10).keys()].map(n=>({v:String(n),q:'mv='+n})).concat([{v:'10+',q:'mv>=10'}])};
+ rarity:[['Common','r:common'],['Uncommon','r:uncommon'],['Rare','r:rare'],['Mythic rare','r:mythic'],['Special','r:special'],['Bonus','r:bonus'],['Uncommon or higher','r>=uncommon'],['Rare or higher','r>=rare'],['Uncommon or lower','r<=uncommon']].map(([v,q])=>({v,q})),
+ format:FORMATS.map(([v,f])=>({v,q:'f:'+f,g:'Legal in'})).concat(FORMATS.map(([v,f])=>({v:'Banned in '+v,q:'banned:'+f,g:'Banned in'})),[['Vintage','vintage'],['Old School 93/94','oldschool']].map(([v,f])=>({v:'Restricted in '+v,q:'restricted:'+f,g:'Restricted in'}))),
+ game:[['Paper','paper'],['MTG Arena','arena'],['Magic Online (MTGO)','mtgo']].map(([v,g])=>({v,q:'game:'+g})),
+ lang:LANGS.map(([v,l])=>({v,q:'lang:'+l})),
+ crit:CRIT,
+ price:[['Under $1','usd<1'],['Under $5','usd<5'],['Under $20','usd<20'],['$20 or more','usd>=20'],['$100 or more','usd>=100'],['Under €5','eur<5'],['Under 1 MTGO ticket','tix<1']].map(([v,q])=>({v,q})),
+ mv:nums('mv',0,16),pow:nums('pow',0,15).concat([{v:'*',q:'pow=*'}]),tou:nums('tou',0,15).concat([{v:'*',q:'tou=*'}]),loy:nums('loy',0,10),
+ year:(()=>{const o=[];for(let y=YEAR;y>=1993;y--)o.push({v:String(y),q:'year='+y});return o})()};
 const CATS={type:[['Card types','card-types'],['Supertypes','supertypes'],['Creature types','creature-types'],['Planeswalker types','planeswalker-types'],['Land types','land-types'],['Artifact types','artifact-types'],['Enchantment types','enchantment-types'],['Spell types','spell-types'],['Battle types','battle-types']],
- kw:[['Keyword abilities','keyword-abilities'],['Keyword actions','keyword-actions'],['Ability words','ability-words']],artist:[['Artists','artist-names']]};
+ kw:[['Keyword abilities','keyword-abilities'],['Keyword actions','keyword-actions'],['Ability words','ability-words']],artist:[['Artists','artist-names']],wm:[['Watermarks','watermarks']]};
 const QUICK={type:['Creature','Instant','Sorcery','Artifact','Enchantment','Land','Planeswalker','Legendary','Zombie','Angel','Dragon','Goblin','Elf','Wizard'],
  otag:['removal','ramp','draw','tutor','counterspell','sweeper','burn','lifegain','mill','recursion','reanimate','sacrifice-outlet','bounce','anthem','mana-rock','cantrip'],
  atag:['dragon','cat','dog','angel','moon','forest','skull','fire','sword','ocean','castle','owl','mushroom','skeleton'],
  kw:['Flying','Trample','Deathtouch','Lifelink','Haste','Vigilance','Flash','Ward','Landfall','Scry'],
- color:['White','Blue','Black','Red','Green','Colorless','Multicolored'],mv:['0','1','2','3','4','5','6','7+'],
- rarity:['Common','Uncommon','Rare','Mythic rare'],format:['Commander','Standard','Pioneer','Modern','Legacy','Pauper']};
+ mv:['0','1','2','3','4','5','6','7+'],pow:['0','1','2','3','4','5+','*'],tou:['1','2','3','4','5','6+','*'],loy:['2','3','4','5','6+'],
+ price:LISTS.price.map(x=>x.v),rarity:['Common','Uncommon','Rare','Mythic rare','Rare or higher'],
+ crit:['Commander','Full Art','Borderless','Showcase','Reprint','First Printing','Vanilla','Reserved List','Fetchland','Shockland'],
+ wm:['azorius','boros','dimir','golgari','gruul','izzet','orzhov','rakdos','selesnya','simic'],
+ year:[String(YEAR),String(YEAR-1),String(YEAR-2),(YEAR-5)+'+','<2003'],lang:['Japanese','German','French','Spanish','Italian','Phyrexian'],
+ format:['Commander','Standard','Pioneer','Modern','Legacy','Pauper','Banned in Commander'],game:['Paper','MTG Arena','Magic Online (MTGO)']};
 // Lists that come from Scryfall are kept on the device for two weeks. Both tag lists come from tags.json next to this page.
 const LOADING={},LOADERR={},lkey=k=>isTag(k)?'tags':k;
 function loadList(k){
@@ -444,13 +492,18 @@ async function fetchList(k){
  const c=ls.get('mtgr_cat_'+k,null);
  if(c&&c.v==1&&Array.isArray(c.d)&&Date.now()-c.t<14*864e5){LISTS[k]=c.d;return}
  try{let d=[];
-  if(k=='set'){const j=await api('/sets');d=(j.data||[]).filter(s=>s.card_count>0&&!['token','memorabilia','minigame'].includes(s.set_type)).sort((a,b)=>String(b.released_at||'').localeCompare(String(a.released_at||''))).map(s=>({v:s.name,q:'set:'+s.code,s:s.code.toUpperCase()+(s.released_at?' · '+s.released_at.slice(0,4):'')}))}
-  else for(const[g,cat]of CATS[k]){const j=await api('/catalog/'+cat);(j.data||[]).forEach(v=>d.push({v,g}))}
+  if(k=='set')d=(await rawSets()).filter(s=>s.card_count>0&&!['token','memorabilia','minigame'].includes(s.set_type)).sort((a,b)=>String(b.released_at||'').localeCompare(String(a.released_at||''))).map(s=>({v:s.name,q:'set:'+s.code,s:s.code.toUpperCase()+(s.released_at?' · '+s.released_at.slice(0,4):'')}));
+  else if(k=='block'){const by=new Map();   // newest block first
+   (await rawSets()).forEach(s=>{if(!s.block_code||!s.block)return;const r=String(s.released_at||''),e=by.get(s.block_code);if(!e)by.set(s.block_code,{v:s.block,q:'b:'+s.block_code,s:s.block_code.toUpperCase(),r});else if(r>e.r)e.r=r});
+   d=[...by.values()].sort((a,b)=>b.r.localeCompare(a.r)).map(({v,q,s})=>({v,q,s}))}
+  else for(const[g,cat]of CATS[k]){const j=await api('/catalog/'+cat);(j.data||[]).forEach(v=>d.push(k=='wm'?{v,q:'wm:'+v}:{v,g}))}
   ls.set('mtgr_cat_'+k,{v:1,t:Date.now(),d});LISTS[k]=d}
  catch(e){if(c&&Array.isArray(c.d)){LISTS[k]=c.d;return}throw e}}
+let SETS_P=null;   // sets and blocks both come from one /sets download
+const rawSets=()=>SETS_P||(SETS_P=api('/sets').then(j=>j.data||[],e=>{SETS_P=null;throw e}));
 const slug=v=>String(v).toLowerCase().trim().replace(/[\s_]+/g,'-').replace(/[^a-z0-9-]/g,'');
 const qq=v=>'"'+String(v).replace(/["\\]/g,'')+'"';
-const label=(k,it)=>k=='set'&&it.s?it.v+' ('+it.s.split(' · ')[0]+')':it.v;
+const label=(k,it)=>(k=='set'||k=='block')&&it.s?it.v+' ('+it.s.split(' · ')[0]+')':it.v;
 // Best matches first: exact, starts with, a word starts with, anywhere (set codes count too),
 // then entries that contain every typed word in any order ("card draw" finds "draw-cards").
 function matchList(list,q,k,lim){
@@ -462,10 +515,26 @@ function matchList(list,q,k,lim){
   else if(toks.length>1&&toks.every(t=>v.includes(t)))r=4;
   if(r>=0)out[r].push(it)}
  const all=out.flat();return lim?all.slice(0,lim):all}
+// Numbers typed like 3, 3+, 3-, 2-4, <=2, ≥5 or * (power/toughness) become Scryfall comparisons.
+function numQ(key,v,star){
+ v=v.replace(/\s+/g,'').replace('≥','>=').replace('≤','<=').replace('≠','!=');const N='(\\d+(?:\\.\\d+)?)';let m;
+ if((m=v.match(new RegExp('^'+N+'\\+$'))))return key+'>='+m[1];
+ if((m=v.match(new RegExp('^'+N+'-$'))))return key+'<='+m[1];
+ if((m=v.match(new RegExp('^'+N+'-'+N+'$'))))return key+'>='+m[1]+' '+key+'<='+m[2];
+ if((m=v.match(new RegExp('^(<=|>=|!=|<|>|=)?'+N+'$'))))return key+(m[1]||'=')+m[2];
+ if(star&&v=='*')return key+'=*';
+ return null}
+// Prices: "<5", "20+", "1-3", "under 5", "eur<10", "tix>=1" (US dollars unless eur or tix comes first).
+function priceQ(v){
+ v=v.toLowerCase().replace(/\s+/g,'');let cur='usd';const c=v.match(/^(usd|eur|tix|\$|€)/);
+ if(c){cur=c[1]=='$'?'usd':c[1]=='€'?'eur':c[1];v=v.slice(c[1].length)}
+ v=v.replace(/^(under|below|lessthan)/,'<').replace(/^(over|above|morethan)/,'>').replace(/[$€]/g,'');
+ return numQ(cur,v,false)}
 // Turns what was typed or picked into a piece of a Scryfall search.
 function resolve(k,v){
  v=String(v||'').trim();if(!v)return null;
  const L=LISTS[k],lv=v.toLowerCase(),hit=L&&(L.find(x=>x.v.toLowerCase()==lv)||L.find(x=>x.s&&x.s.split(' · ')[0].toLowerCase()==lv));
+ if(hit&&hit.q)return{v:hit.v,q:hit.q};
  switch(k){
   case'type':return{v,q:'t:'+qq(v)};
   case'otag':case'atag':{const s=slug(v);return s?{v:s,q:k+':'+s}:{err:'Tags use letters, numbers and dashes, like card-advantage.'}}
@@ -473,38 +542,71 @@ function resolve(k,v){
   case'artist':return{v,q:'a:'+qq(v)};
   case'name':return{v,q:qq(v)};
   case'text':return{v,q:'o:'+qq(v)};
+  case'flavor':return{v,q:'ft:'+qq(v)};
+  case'lore':return{v,q:'lore:'+qq(v)};
+  case'mana':{const m=v.replace(/\s+/g,'');return/^[0-9a-z{}\/½∞]+$/i.test(m)?{v:m,q:'m:'+m}:{err:'Use mana symbols like {2}{R}{R} or 2RR.'}}
   case'raw':return{v,q:'('+v+')'};
-  case'mv':{const m=v.match(/^(\d{1,2})\s*(\+)?$/);return m?{v:m[1]+(m[2]||''),q:'mv'+(m[2]?'>=':'=')+m[1]}:{err:'Type a number, like 3 or 7+.'}}
-  default:if(hit)return{v:hit.v,q:hit.q};
+  case'price':{const q=priceQ(v);return q?{v,q}:{err:'Try <5, 20+, 1-3 or eur<10.'}}
+  case'crit':return/^[a-z]+$/i.test(v)?{v,q:'is:'+v.toLowerCase()}:{err:'Pick a criteria from the suggestions or the ▾ All list.'};
+  case'wm':return{v:slug(v).replace(/-/g,''),q:'wm:'+slug(v).replace(/-/g,'')};
+  case'lang':return/^[a-z]{2,3}$/i.test(v)?{v,q:'lang:'+v.toLowerCase()}:{err:'Pick a language from the list.'};
+  default:
+   if(NUMK[k]){const q=numQ(NUMK[k],v,k=='pow'||k=='tou');return q?{v,q}:{err:NUMHINT}}
    if(k=='set'&&!L&&/^[a-z0-9]{2,6}$/i.test(v))return{v:v.toUpperCase(),q:'set:'+v.toLowerCase()};   // set list unavailable: trust a code
-   return{err:'Pick a '+KBY[k].s.toLowerCase()+' from the suggestions or the ▾ All list.'}}}
+   if(k=='block'&&!L&&/^[a-z0-9]{2,6}$/i.test(v))return{v:v.toUpperCase(),q:'b:'+v.toLowerCase()};
+   return{err:'Pick one from the suggestions or the ▾ All list.'}}}
 // ---------- your pool (what the dice rolls from) ----------
-// crit = filters added with "+ Add another filter"; k/v = the Search by box; mem = the last value typed for each Search by choice.
+// crit = filters added with "+ Add another filter"; k/v = the Search by box; mem = the last value typed for each Search by choice;
+// col = the Colors row (c = picked symbols from WUBRGC, m = how to match them).
+const CMODES={'>=':'Including','=':'Exactly','<=':'At most','id':'Commander'};
 function cleanPool(p){p=p&&typeof p=='object'?p:{};
  const crit=Array.isArray(p.crit)?p.crit.filter(c=>c&&KBY[c.k]&&typeof c.v=='string'&&typeof c.q=='string').slice(0,12).map(c=>({k:c.k,v:c.v.slice(0,200),q:c.q.slice(0,400),neg:c.neg===true})):[];
  const mem={};if(p.mem&&typeof p.mem=='object')Object.keys(p.mem).forEach(k=>{if(KBY[k]&&typeof p.mem[k]=='string')mem[k]=p.mem[k].slice(0,200)});
- return{crit,k:KBY[p.k]?p.k:'type',v:typeof p.v=='string'?p.v.slice(0,200):'',mem}}
+ const col=p.col&&typeof p.col=='object'?p.col:{},cc=typeof col.c=='string'?'WUBRGC'.split('').filter(x=>col.c.includes(x)).join(''):'';
+ const known=!!KBY[p.k];   // a Search by choice that no longer exists (like v1.1.0's Color) starts empty
+ return{crit,k:known?p.k:'type',v:known&&typeof p.v=='string'?p.v.slice(0,200):'',mem,col:{c:cc.includes('C')?'C':cc,m:CMODES[col.m]?col.m:'>='}}}
 let pool=cleanPool(ls.get('mtgr_pool',null));
 const savePool=()=>ls.set('mtgr_pool',pool);
 function curCrit(){const r=resolve(pool.k,pool.v);return r&&!r.err?{k:pool.k,v:r.v,q:r.q}:null}
-function buildQ(){const p=pool.crit.map(c=>(c.neg?'-':'')+c.q),c=curCrit();if(c)p.push(c.q);return p.join(' ')}
+function colQ(){const{c,m}=pool.col;if(!c)return'';if(c=='C')return m=='id'?'id<=c':'c=c';const l=c.toLowerCase();return m=='id'?'id<='+l:'c'+m+l}
+function buildQ(){const p=[colQ()].concat(pool.crit.map(c=>(c.neg?'-':'')+c.q)),c=curCrit();if(c)p.push(c.q);return p.filter(Boolean).join(' ')}
 function fullQ(){let q=buildQ();if(cfg.extras)q=(q||'mv>=0')+' include:extras';return q}
-function descPool(){const p=pool.crit.map(c=>(c.neg?'Not ':'')+KBY[c.k].s+': '+c.v),c=curCrit();if(c)p.push(KBY[c.k].s+': '+c.v);return p.join(' + ')||'Any card'}
-function drawKinds(){$('#kind').innerHTML=KINDS.map(x=>'<option value="'+x.k+'">'+esc(x.n)+'</option>').join('');$('#kind').value=pool.k}
+const chipText=c=>c.k=='crit'?(c.neg?'Is not: ':'Is: ')+c.v:(c.neg?'Not ':'')+KBY[c.k].s+': '+c.v;
+function descPool(){const p=pool.crit.map(chipText),c=curCrit();if(pool.col.c)p.unshift('Colors: '+pool.col.c+' ('+CMODES[pool.col.m].toLowerCase()+')');if(c)p.push(chipText(c));return p.join(' + ')||'Any card'}
+function drawKinds(){let h='',g=null;
+ KINDS.forEach(x=>{if(x.grp&&x.grp!==g){h+=(g?'</optgroup>':'')+'<optgroup label="'+esc(x.grp)+'">';g=x.grp}h+='<option value="'+x.k+'">'+esc(x.n)+'</option>'});
+ $('#kind').innerHTML=h+(g?'</optgroup>':'');$('#kind').value=pool.k}
+// ---------- the Colors row (like the color checkboxes in Scryfall's Advanced Search) ----------
+const CNAME={W:'white',U:'blue',B:'black',R:'red',G:'green',C:'colorless'};
+function colHint(){const{c,m}=pool.col;if(!c)return'Tap colors to limit the pool. Tap again to remove them.';
+ if(c=='C')return m=='id'?'Colorless cards, which fit in any Commander deck.':'Colorless cards.';
+ const n=c.split('').map(x=>CNAME[x]),list=n.length>1?n.slice(0,-1).join(', ')+' and '+n[n.length-1]:n[0];
+ return{'>=':'Cards that are '+list+', and maybe other colors too.','=':'Cards that are exactly '+list+', no other colors.','<=':'Cards whose colors are only '+(n.length>1?'from '+list:list)+'. Colorless cards count too.','id':'Cards that fit in a Commander deck whose colors are '+list+'.'}[m]}
+function drawCols(){const{c,m}=pool.col;
+ $('#cols').innerHTML='WUBRGC'.split('').map(x=>'<button type="button" data-c="'+x+'" class="'+(c.includes(x)?'on':'')+'" aria-pressed="'+c.includes(x)+'" aria-label="'+CNAME[x]+'"><img src="https://svgs.scryfall.io/card-symbols/'+x+'.svg" alt="'+x+'"></button>').join('');
+ [...$('#cmode').children].forEach(b=>b.className=b.dataset.m==m?'on':'');$('#cmode').hidden=!c;$('#colh').textContent=colHint()}
+$('#cols').onclick=e=>{const b=e.target.closest('[data-c]');if(!b)return;const x=b.dataset.c;let c=pool.col.c;
+ c=c.includes(x)?c.replace(x,''):x=='C'?'C':c.replace('C','')+x;   // colorless can't be mixed with colors
+ pool.col.c='WUBRGC'.split('').filter(y=>c.includes(y)).join('');savePool();drawCols();drawQ()};
+$('#cmode').onclick=e=>{const b=e.target.closest('[data-m]');if(!b)return;pool.col.m=b.dataset.m;savePool();drawCols();drawQ()};
 function drawVal(){const K=KBY[pool.k];$('#vlab').textContent=K.lab;$('#val').placeholder=K.ph;if($('#val').value!==pool.v)$('#val').value=pool.v;$('#khint').textContent=K.hint||'';$('#khint').hidden=!K.hint;$('#combo').classList.toggle('nol',!!K.nolist);$('#vclr').hidden=!pool.v;$('#verr').hidden=true}
 function drawSug(){
  const k=pool.k,box=$('#sug');if(KBY[k].nolist){box.innerHTML='';return}
  const L=LISTS[k],v=pool.v.trim();let items=[],note='';
- if(!v)items=(QUICK[k]||[]).map(x=>(L&&L.find(i=>i.v==x))||{v:x}).concat(k=='set'&&L?L.slice(0,8):[]);
- else if(L){items=matchList(L,v,k,9);if(items.length&&items[0].v.toLowerCase()==v.toLowerCase())items=[];else if(!items.length)note='Nothing in the list matches. '+(['set','color','rarity','format'].includes(k)?'Check the spelling.':'You can still roll with what you typed.')}
+ if(!v)items=(QUICK[k]||[]).map(x=>(L&&L.find(i=>i.v==x))||{v:x}).concat((k=='set'||k=='block')&&L?L.slice(0,8):[]);
+ else if(L){const typed=NUMK[k]||k=='price';   // numbers and prices can be typed freely
+  items=matchList(L,v,k,9);
+  if(items.length&&items[0].v.toLowerCase()==v.toLowerCase())items=[];
+  else if(typed&&!resolve(k,v).err)items=[];
+  else if(!items.length)note=typed?KBY[k].hint:'Nothing in the list matches. '+(['set','block','rarity','format','game','lang','crit'].includes(k)?'Check the spelling.':'You can still roll with what you typed.')}
  else if(LOADING[lkey(k)])note='Loading suggestions…';
  else if(LOADERR[lkey(k)])note='Couldn’t load suggestions'+(navigator.onLine?'':' (you’re offline)')+'. You can still type a value.';
  box.innerHTML=items.map(it=>'<button type="button" data-v="'+esc(it.v)+'">'+esc(label(k,it))+(it.c?'<small>'+fmtN(it.c)+'</small>':'')+'</button>').join('')+(note?'<p class="legend">'+esc(note)+'</p>':'')}
 function drawPool(){
- $('#pool').innerHTML=pool.crit.map((c,i)=>'<span class="pc'+(c.neg?' neg':'')+'"><button type="button" class="pct" data-i="'+i+'">'+(c.neg?'Not ':'')+esc(KBY[c.k].s)+': '+esc(c.v)+'</button><button type="button" class="pcx" data-x="'+i+'" aria-label="Remove '+esc(KBY[c.k].s+' '+c.v)+'">×</button></span>').join('');
+ $('#pool').innerHTML=pool.crit.map((c,i)=>'<span class="pc'+(c.neg?' neg':'')+'"><button type="button" class="pct" data-i="'+i+'">'+esc(chipText(c))+'</button><button type="button" class="pcx" data-x="'+i+'" aria-label="Remove '+esc(chipText(c))+'">×</button></span>').join('');
  $('#poolh').hidden=!pool.crit.length}
 function drawQ(){
- const q=buildQ(),u=cfg.uniq!='cards'||cfg.extras;
+ const q=buildQ(),u=cfg.uniq!='cards'||cfg.extras;$('#clrall').hidden=!pool.crit.length&&!pool.col.c&&!pool.v;
  $('#qp').innerHTML=q?'Scryfall search: <code>'+esc(fullQ())+'</code> · <a href="https://scryfall.com/search?q='+encodeURIComponent(fullQ())+(cfg.uniq!='cards'?'&amp;unique='+cfg.uniq:'')+'" target="_blank" rel="noopener">open ↗</a>':(cfg.rand?'No filters yet, so the dice can land on any card'+(u?' (with your printing options)':'')+'.':'Pick at least one filter, then tap Search.')}
 function drawMode(){const r=cfg.rand;$('#dicew').hidden=!r;$('#sbtn').hidden=r;$('#t1').textContent=r?'Randomize':'Search';$('#res').hidden=r||!S.cards.length;$('#msg').hidden=true;drawQ()}
 function drawOpts(){[...$('#uniq').children].forEach(b=>b.className=b.dataset.u==cfg.uniq?'on':'');$('#extras').checked=cfg.extras}
@@ -526,11 +628,12 @@ $('#addc').onclick=async()=>{
  const c=curCrit();if(pool.crit.length>=12){toast('That’s a lot of filters! Remove one first.');return}
  if(!pool.crit.some(x=>x.q==c.q))pool.crit.push(Object.assign(c,{neg:false}));
  pool.v='';savePool();drawVal();drawPool();drawSug();drawQ();toast('Filter added. Pick another one, or roll.')};
+$('#clrall').onclick=()=>{pool.crit=[];pool.col.c='';pool.v='';pool.mem={};savePool();drawCols();drawVal();drawPool();drawSug();drawQ();toast('Filters cleared')};
 $('#uniq').onclick=e=>{const b=e.target.closest('[data-u]');if(!b)return;cfg.uniq=b.dataset.u;saveCfg();drawOpts();resetSearch();drawQ()};
 $('#extras').onchange=()=>{cfg.extras=$('#extras').checked;saveCfg();resetSearch();drawQ()};
-// Checks what is typed in the box. Sets can only be checked once their list has loaded.
+// Checks what is typed in the box. Sets and blocks can only be checked once their list has loaded.
 async function checkCur(){
- if(pool.v.trim()&&pool.k=='set'&&!LISTS.set)try{await loadList('set')}catch(e){}
+ if(pool.v.trim()&&(pool.k=='set'||pool.k=='block')&&!LISTS[pool.k])try{await loadList(pool.k)}catch(e){}
  const r=resolve(pool.k,pool.v);if(r&&r.err){$('#verr').textContent=r.err;$('#verr').hidden=false;return false}return true}
 function showMsg(t){const m=$('#msg');m.textContent=t;m.hidden=false;m.scrollIntoView({behavior:'smooth',block:'nearest'})}
 const go=()=>cfg.rand?roll(false):runSearch(false);
@@ -597,7 +700,7 @@ function drawViewer(){
  box.classList.toggle('art',V.art);box.classList.toggle('noi',!url);$('#vph').textContent=c.n+' (no picture available)';
  if(url&&img.getAttribute('src')!==url){box.classList.add('ld');img.onload=()=>box.classList.remove('ld');img.onerror=()=>{box.classList.remove('ld');box.classList.add('noi')};img.src=url}
  img.alt=(V.face&&c.f2?c.f2:c.n)+(V.art?' (art)':'');
- $('#vn').textContent=V.face&&c.f2?c.f2:c.n;
+ $('#vn').textContent=V.face&&c.f2?c.f2:c.pn&&c.pn!=c.n?c.pn+' ('+c.n+')':c.n;
  $('#vc').textContent=V.src=='roll'?(V.list.length>1?'Roll '+(V.i+1)+' of '+V.list.length+' · swipe to look back':'Swipe left or tap the dice to roll again'):(V.i+1)+' of '+fmtN(V.src=='search'?S.total:V.list.length);
  $('#vcap').textContent=[c.t,(c.sn?c.sn+' ('+c.s.toUpperCase()+(c.cn?' #'+c.cn:'')+')':''),c.a?'Illustrated by '+c.a:''].filter(Boolean).join(' · ');
  $('#vflip').hidden=!c.im2;$('#vart').textContent=V.art?'Full card':'Art only';
@@ -775,7 +878,7 @@ function drawPicker(){
  const k=PK.k,q=$('#pkq').value.trim();let m=matchList(LISTS[k]||[],q,k,0);
  if(isTag(k)&&PK.sort=='a')m=m.slice().sort((a,b)=>a.v.localeCompare(b.v));
  const lim=300;let g=null,h='';
- if(q&&!m.some(it=>it.v.toLowerCase()==q.toLowerCase())&&!['set','color','rarity','format','mv'].includes(k))h+='<button class="pki use" type="button" data-v="'+esc(q)+'"><span>Use “'+esc(isTag(k)?slug(q):q)+'”</span></button>';
+ if(q&&!m.some(it=>it.v.toLowerCase()==q.toLowerCase())){const r=resolve(k,q);if(r&&!r.err)h+='<button class="pki use" type="button" data-v="'+esc(q)+'"><span>Use “'+esc(r.v)+'”</span></button>'}
  for(const it of m.slice(0,lim)){if(!q&&!(isTag(k))&&it.g&&it.g!==g){g=it.g;h+='<p class="aisle">'+esc(g)+'</p>'}
   h+='<button class="pki" type="button" data-v="'+esc(it.v)+'"><span>'+esc(label(k,it))+'</span>'+(it.c?'<small>'+fmtN(it.c)+' card'+(it.c==1?'':'s')+'</small>':it.s?'<small>'+esc(it.s.split(' · ')[1]||'')+'</small>':'')+'</button>'}
  $('#pkn').textContent=m.length>lim?'Showing '+lim+' of '+fmtN(m.length)+'. Type above to narrow it down.':fmtN(m.length)+(m.length==1?' match':' matches');
@@ -880,7 +983,7 @@ function openChangelog(){
  o.hidden=false;syncNosc();$('#chlb').scrollTop=0;setTimeout(()=>{try{$('#chlx').focus()}catch(e){}},30)}
 $('#mchl').onclick=()=>{closeDrawerDOM();swapTop('chl',closeChlDOM);openChangelog()};
 // ---------- start ----------
-function drawAll(){drawKinds();drawVal();drawPool();drawSug();drawOpts();drawSettings();drawMode();drawThemes();drawDecks();drawHist();if(curDeck)drawDeck()}
+function drawAll(){drawKinds();drawCols();drawVal();drawPool();drawSug();drawOpts();drawSettings();drawMode();drawThemes();drawDecks();drawHist();if(curDeck)drawDeck()}
 $('#logo').src=document.querySelector('link[rel=icon]').href;
 $('#ftv').textContent=APPV;$('#mupdv').textContent='v'+APPV;
 dice(false);drawAll();useList(pool.k);

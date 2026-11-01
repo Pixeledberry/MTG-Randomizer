@@ -35,7 +35,16 @@ It runs as a single static web page (`index.html` plus the tag list `tags.json`,
 
 ## Changelog
 
-### v1.1.0 (latest)
+### v1.2.0 (latest)
+- **Colors row.** Tap the mana symbols at the top of the Randomize tab (white, blue, black, red, green, colorless) and choose **Including**, **Exactly**, **At most** or **Commander** (fits a Commander deck of those colors), like Scryfall's Advanced Search.
+- **Every Scryfall Advanced Search field.** New Search by choices: Power, Toughness, Loyalty, Price (dollars, euros or MTGO tickets), Block, Criteria (all of Scryfall's "is:" options plus land cycles like Fetchland and Shockland), Mana cost, Flavor text, Lore finder, Watermark, Year printed, Language and Game (Paper, Arena, MTGO). Formats can now be **Banned in** or **Restricted in**, and Rarity has ranges like **Rare or higher**.
+- **Type numbers your way.** Number choices take `3`, `5+`, `2-4` or `<=2`; prices take `<5`, `20+` or `eur<10`.
+- **Easier to find things.** The Search by list is now grouped, and **Clear all** removes every filter at once.
+- **More sort orders** in search mode: power, toughness, euro and MTGO prices, and set review order.
+- Cards rolled in another language show their printed name next to the English one.
+- The old "Color" choice in Search by is replaced by the Colors row, so color filters added in v1.1.0 are removed once.
+
+### v1.1.0
 - **Rebuilt to look and work like TickedOff.** Same layout, menu and themes (Auto, Light, Default, Dark, five high contrast, five low contrast and six seasonal, plus your own colors), update notices and in-app changelog.
 - **Search by Type, Function, Art and more.** Choose what to search by (Type, Function, Art, Keyword, Color, Mana value, Rarity, Set, Format, Artist, Card name, Rules text or your own Scryfall search), then type or pick a value. Suggestions appear as you type, and **▾ All** lists every value you can pick.
 - **Scryfall Tagger built in.** Every function tag (otag, for example `removal` or `ramp`) and art tag (for example `dragon` or `moon`), with how many cards each one covers.
@@ -54,27 +63,55 @@ It runs as a single static web page (`index.html` plus the tag list `tags.json`,
 Works in modern browsers on iPhone and iPad (Safari), Android, and desktop.
 
 ### Building a pool
-- **Search by** picks what kind of filter you're setting:
+- **Colors** (top of the Randomize tab): tap the white, blue, black, red, green or colorless symbols, then choose how to match them, like the color checkboxes in Scryfall's Advanced Search:
+
+| Choice | Means | Scryfall search it makes (red + green) |
+|---|---|---|
+| Including | Red and green, maybe other colors too | `c>=rg` |
+| Exactly | Only red and green | `c=rg` |
+| At most | Nothing outside red and green (colorless counts) | `c<=rg` |
+| Commander | Fits in a red-green Commander deck | `id<=rg` |
+
+- **Search by** picks what kind of filter you're setting. It covers every field in Scryfall's Advanced Search, plus Scryfall Tagger tags and keywords:
 
 | Search by | Example | Scryfall search it makes |
 |---|---|---|
+| **Most used** | | |
 | Type | Zombie, Instant, Legendary | `t:"zombie"` |
 | Function (oracle tag) | removal, ramp, tutor | `otag:removal` |
 | Art (art tag) | dragon, moon, cat | `atag:dragon` |
 | Keyword | Flying, Landfall | `keyword:"flying"` |
-| Color | Red, Azorius, Mono-green | `c:r`, `c=wu`, `c=g` |
-| Mana value | 3, 7+ | `mv=3`, `mv>=7` |
-| Rarity | Mythic rare | `r:mythic` |
-| Set | Dominaria (DOM) | `set:dom` |
-| Format (legal in) | Commander | `f:commander` |
-| Artist | Rebecca Guay | `a:"rebecca guay"` |
 | Card name | bolt | `"bolt"` |
 | Rules text | draw a card | `o:"draw a card"` |
-| Scryfall search (advanced) | `t:dragon pow>=5` | used as typed |
+| **Numbers** | | |
+| Mana value | 3, 7+, 2-4, <=2 | `mv=3`, `mv>=7`, `mv>=2 mv<=4`, `mv<=2` |
+| Power / Toughness | 5+, 0, * | `pow>=5`, `tou=0`, `pow=*` |
+| Loyalty | 4 | `loy=4` |
+| Price | Under $5, 20+, eur<10, tix>=1 | `usd<5`, `usd>=20`, `eur<10`, `tix>=1` |
+| **Cards and printings** | | |
+| Rarity | Mythic rare, Rare or higher | `r:mythic`, `r>=rare` |
+| Set | Dominaria (DOM) | `set:dom` |
+| Block or group | Khans of Tarkir | `b:ktk` |
+| Criteria (is: / is not:) | Full Art, Reprint, Commander, Fetchland | `is:fullart` |
+| Artist | Rebecca Guay | `a:"rebecca guay"` |
+| Mana cost | {2}{R}{R} or 2RR | `m:{2}{R}{R}` |
+| Flavor text | dragon | `ft:"dragon"` |
+| Lore finder | Urza | `lore:"urza"` |
+| Watermark | orzhov | `wm:orzhov` |
+| Year printed | 2020, 2015+, <2003 | `year=2020` |
+| Language | Japanese | `lang:ja` |
+| **Where you can play** | | |
+| Format | Commander, Banned in Modern, Restricted in Vintage | `f:commander`, `banned:modern`, `restricted:vintage` |
+| Game | Paper, MTG Arena, Magic Online | `game:arena` |
+| **Advanced** | | |
+| Scryfall search | `t:dragon pow>=5` | used as typed |
+
+- **Criteria** has every "is:" option from Scryfall's Advanced Search (Popular ones first), plus land cycles: dual, fetch, shock, check, pain, fast, slow, bounce, gain, filter, scry, pathway, bike, canopy, tri, tricycle, shadow, storage, tango and snarl lands.
+- **Language** rolls cards printed in that language and shows the foreign card picture, with the printed name next to the English one.
 
 - **Suggestions as you type.** Popular choices show before you type; matches show while you type. Function and art tags show how many cards they cover. Typing several words finds tags that contain all of them ("card draw" finds `draw-card`).
 - **▾ All** opens the full list for the current choice (every type, every tag, every set and so on) with a filter box. Tags can be sorted by **Most cards** or **A–Z**. Anything you type that isn't in the list can still be used.
-- **+ Add another filter** keeps the current choice as a filter chip and clears the box for the next one. Tap a chip to switch it between **must have** and **must not have**; tap **×** to remove it.
+- **+ Add another filter** keeps the current choice as a filter chip and clears the box for the next one. Tap a chip to switch it between **must have** and **must not have** (Criteria chips read **Is** / **Is not**); tap **×** to remove it. **Clear all** removes every filter, the colors and the text in the box.
 - Each **Search by** choice remembers what you last typed in it.
 - The exact Scryfall search is shown under the dice, with a link to open it on Scryfall.
 - **More options:** roll from **each card once** (default), **every artwork**, or **every printing**, and optionally include tokens, emblems and other extras.
@@ -85,7 +122,7 @@ Works in modern browsers on iPhone and iPad (Safari), Android, and desktop.
 - The app tries not to repeat a card you rolled recently from the same pool (small pools will still repeat).
 
 ### Search mode (randomizer off)
-- **Menu → Settings → Randomizer** switches the dice for a **Search** button that shows every matching card in a grid, 175 at a time with **Show more**, sortable by name, release date, mana value, color, rarity, popularity, price, artist or set.
+- **Menu → Settings → Randomizer** switches the dice for a **Search** button that shows every matching card in a grid, 175 at a time with **Show more**, sortable by name, release date, set and number, rarity, color, mana value, power, toughness, popularity (EDHREC), price in dollars, euros or MTGO tickets, artist, or set review order.
 - Tap any card to see it full screen and swipe through the results.
 
 ### Decks
