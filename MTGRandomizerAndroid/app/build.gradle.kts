@@ -11,8 +11,23 @@ android {
         applicationId = "com.pixeledberry.mtgrandomizer"
         minSdk = 26
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 2
+        versionName = "1.1.0"
+    }
+
+    // One fixed signing key for every build, so a new version installs over an older one and keeps its decks.
+    signingConfigs {
+        create("mtgrandomizer") {
+            storeFile = file("mtgrandomizer.jks")
+            storeType = "pkcs12"
+            storePassword = "mtgrandomizer"
+            keyAlias = "mtgrandomizer"
+            keyPassword = "mtgrandomizer"
+        }
+    }
+    buildTypes {
+        getByName("debug") { signingConfig = signingConfigs.getByName("mtgrandomizer") }
+        getByName("release") { signingConfig = signingConfigs.getByName("mtgrandomizer") }
     }
 
     compileOptions {

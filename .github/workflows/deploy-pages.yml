@@ -5,8 +5,10 @@ on:
     branches: [main]
     paths:
       - "index.html"
+      - "tags.json"
       - "manifest.webmanifest"
       - "apple-touch-icon.png"
+      - "icon-192.png"
       - "icon-512.png"
       - ".github/workflows/deploy-pages.yml"
   workflow_dispatch:
@@ -24,9 +26,6 @@ concurrency:
 
 jobs:
   build:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -36,7 +35,7 @@ jobs:
       - name: Stage site files
         run: |
           mkdir -p public
-          cp index.html manifest.webmanifest apple-touch-icon.png icon-512.png public/
+          cp index.html tags.json manifest.webmanifest apple-touch-icon.png icon-192.png icon-512.png public/
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:

@@ -1,480 +1,892 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>MTG Randomizer</title>
-<meta name="description" content="Roll a random Magic: The Gathering card from your own filtered pool. Powered by the Scryfall API.">
-<meta name="theme-color" content="#0f5132">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230f5132'/%3E%3Crect x='14' y='14' width='36' height='36' rx='8' fill='%23fff'/%3E%3Cg fill='%230f5132'%3E%3Ccircle cx='24' cy='24' r='4.5'/%3E%3Ccircle cx='40' cy='24' r='4.5'/%3E%3Ccircle cx='32' cy='32' r='4.5'/%3E%3Ccircle cx='24' cy='40' r='4.5'/%3E%3Ccircle cx='40' cy='40' r='4.5'/%3E%3C/g%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>MTG Randomizer – random Magic card picker</title>
+<meta name="description" content="Pick a pool of Magic: The Gathering cards by type, function or art, roll the dice and see a random card full screen. Build decks too. Card data from Scryfall.">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjcuNjMgNy42MyA4NC43NSA4NC43NSI+PHJlY3QgeD0iNy42MyIgeT0iNy42MyIgd2lkdGg9Ijg0Ljc1IiBoZWlnaHQ9Ijg0Ljc1IiByeD0iMTguNjQiIGZpbGw9IiNCRkYwRDgiLz48ZyB0cmFuc2Zvcm09InJvdGF0ZSgtMTMgNDMuNiA0Ny4yKSI+PHBhdGggZmlsbD0iIzBGMjIzMyIgZD0iTTMzLjkwLDI5LjUwIGgxOS40MCBhMy4wMCwzLjAwIDAgMCAxIDMuMDAsMy4wMCB2MjkuNDAgYTMuMDAsMy4wMCAwIDAgMSAtMy4wMCwzLjAwIGgtMTkuNDAgYTMuMDAsMy4wMCAwIDAgMSAtMy4wMCwtMy4wMCB2LTI5LjQwIGEzLjAwLDMuMDAgMCAwIDEgMy4wMCwtMy4wMCB6Ii8+PHBhdGggZmlsbD0iI0JGRjBEOCIgZD0iTTM1LjQwLDMzLjkwIGgxNi40MCBhMS4zMCwxLjMwIDAgMCAxIDEuMzAsMS4zMCB2MTEuNjAgYTEuMzAsMS4zMCAwIDAgMSAtMS4zMCwxLjMwIGgtMTYuNDAgYTEuMzAsMS4zMCAwIDAgMSAtMS4zMCwtMS4zMCB2LTExLjYwIGExLjMwLDEuMzAgMCAwIDEgMS4zMCwtMS4zMCB6Ii8+PHBhdGggZmlsbD0iI0JGRjBEOCIgZD0iTTM1LjI1LDUxLjQ1IGgxMS41MCBhMS4xNSwxLjE1IDAgMCAxIDEuMTUsMS4xNSB2MC4wMCBhMS4xNSwxLjE1IDAgMCAxIC0xLjE1LDEuMTUgaC0xMS41MCBhMS4xNSwxLjE1IDAgMCAxIC0xLjE1LC0xLjE1IHYtMC4wMCBhMS4xNSwxLjE1IDAgMCAxIDEuMTUsLTEuMTUgeiIvPjxwYXRoIGZpbGw9IiNCRkYwRDgiIGQ9Ik0zNS4yNSw1NS4yNSBoOC4xMCBhMS4xNSwxLjE1IDAgMCAxIDEuMTUsMS4xNSB2MC4wMCBhMS4xNSwxLjE1IDAgMCAxIC0xLjE1LDEuMTUgaC04LjEwIGExLjE1LDEuMTUgMCAwIDEgLTEuMTUsLTEuMTUgdi0wLjAwIGExLjE1LDEuMTUgMCAwIDEgMS4xNSwtMS4xNSB6Ii8+PC9nPjxnIHRyYW5zZm9ybT0icm90YXRlKDE0IDU4LjkgNTkuNCkiPjxwYXRoIGZpbGw9IiNCRkYwRDgiIGQ9Ik01Mi40MCw0NS4wMCBoMTMuMDAgYTcuOTAsNy45MCAwIDAgMSA3LjkwLDcuOTAgdjEzLjAwIGE3LjkwLDcuOTAgMCAwIDEgLTcuOTAsNy45MCBoLTEzLjAwIGE3LjkwLDcuOTAgMCAwIDEgLTcuOTAsLTcuOTAgdi0xMy4wMCBhNy45MCw3LjkwIDAgMCAxIDcuOTAsLTcuOTAgeiIvPjxwYXRoIGZpbGw9IiMwRjIyMzMiIGQ9Ik01Mi40MCw0Ny43MCBoMTMuMDAgYTUuMjAsNS4yMCAwIDAgMSA1LjIwLDUuMjAgdjEzLjAwIGE1LjIwLDUuMjAgMCAwIDEgLTUuMjAsNS4yMCBoLTEzLjAwIGE1LjIwLDUuMjAgMCAwIDEgLTUuMjAsLTUuMjAgdi0xMy4wMCBhNS4yMCw1LjIwIDAgMCAxIDUuMjAsLTUuMjAgeiIvPjxwYXRoIGZpbGw9IiNCRkYwRDgiIGQ9Ik01MC40NSw1My4yNSBhMi4zMCwyLjMwIDAgMSAwIDQuNjAsMCBhMi4zMCwyLjMwIDAgMSAwIC00LjYwLDAgeiIvPjxwYXRoIGZpbGw9IiNCRkYwRDgiIGQ9Ik02Mi43NSw1My4yNSBhMi4zMCwyLjMwIDAgMSAwIDQuNjAsMCBhMi4zMCwyLjMwIDAgMSAwIC00LjYwLDAgeiIvPjxwYXRoIGZpbGw9IiNCRkYwRDgiIGQ9Ik01Ni42MCw1OS40MCBhMi4zMCwyLjMwIDAgMSAwIDQuNjAsMCBhMi4zMCwyLjMwIDAgMSAwIC00LjYwLDAgeiIvPjxwYXRoIGZpbGw9IiNCRkYwRDgiIGQ9Ik01MC40NSw2NS41NSBhMi4zMCwyLjMwIDAgMSAwIDQuNjAsMCBhMi4zMCwyLjMwIDAgMSAwIC00LjYwLDAgeiIvPjxwYXRoIGZpbGw9IiNCRkYwRDgiIGQ9Ik02Mi43NSw2NS41NSBhMi4zMCwyLjMwIDAgMSAwIDQuNjAsMCBhMi4zMCwyLjMwIDAgMSAwIC00LjYwLDAgeiIvPjwvZz48L3N2Zz4=">
+<meta name="theme-color" content="#141414">
+<script>try{var __t=JSON.parse(localStorage.getItem("mtgr_theme")||"null");if(!__t||__t.id==="default")document.documentElement.style.background="#141414"}catch(e){}</script>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="MTG Randomizer">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <link rel="manifest" href="manifest.webmanifest">
 <style>
-  *{box-sizing:border-box}
-  :root{
-    --bg:#f2f5f3; --panel:#ffffff; --ink:#1c2521; --sub:#5c6d64; --line:#d9e2dc;
-    --accent:#0f5132; --accent-ink:#ffffff; --chip:#e5efe8; --chip-ink:#2a3a31;
-    --chip-on-bg:#0f5132; --chip-on-ink:#ffffff; --danger:#b23b2e; --card-bg:#ffffff;
-    --border:#d9e2dc; --muted:#5c6d64; --panel2:#f2f5f3;
-  }
-  [data-theme="dark"]{
-    --bg:#0f1413; --panel:#171e1b; --ink:#e6ede8; --sub:#8fa097; --line:#2b3531;
-    --accent:#0f5132; --accent-ink:#ffffff; --chip:#232d28; --chip-ink:#c7d4cc;
-    --chip-on-bg:#2e9e63; --chip-on-ink:#ffffff; --danger:#e07a6d; --card-bg:#1e2622;
-    --border:#2b3531; --muted:#8fa097; --panel2:#1e2622;
-  }
-  html,body{margin:0;padding:0}
-  body{
-    font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-    background:var(--bg); color:var(--ink); line-height:1.45;
-  }
-  header{
-    display:flex;align-items:center;justify-content:space-between;
-    padding:14px 18px; background:var(--accent); color:#fff;
-    position:sticky; top:0; z-index:5;
-  }
-  header h1{font-size:1.15rem;margin:0;letter-spacing:.02em}
-  .icon-btn{
-    border:0;background:rgba(255,255,255,.16);color:#fff;font-size:1rem;
-    padding:6px 10px;border-radius:999px;cursor:pointer;
-  }
-  main{max-width:720px;margin:0 auto;padding:16px 14px 32px}
-  .panel{
-    background:var(--panel);border:1px solid var(--line);border-radius:14px;
-    padding:16px;margin-bottom:16px;
-  }
-  h2{
-    font-size:.95rem;text-transform:uppercase;letter-spacing:.08em;color:var(--sub);
-    margin:0 0 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;
-  }
-  label.fld{display:block;font-size:.85rem;font-weight:600;margin:12px 0 6px}
-  input[type="text"],input[type="number"],select{
-    width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;
-    background:var(--bg);color:var(--ink);font:inherit;
-  }
-  input:focus,select:focus{outline:2px solid var(--accent);outline-offset:1px}
-  .row{display:flex;gap:10px}
-  .row>div{flex:1}
-  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
-  .chip{
-    border:1px solid var(--line);background:var(--chip);color:var(--chip-ink);
-    padding:7px 12px;border-radius:999px;font:inherit;font-size:.88rem;cursor:pointer;
-  }
-  .chip.on{background:var(--chip-on-bg);color:var(--chip-on-ink);border-color:transparent;font-weight:600}
-  .grp{margin-top:16px}
-  .grp-label{font-size:.8rem;font-weight:700;color:var(--sub);text-transform:uppercase;letter-spacing:.06em}
-  .btn{
-    width:100%;margin-top:20px;padding:14px;border:0;border-radius:12px;
-    background:var(--accent);color:var(--accent-ink);font:inherit;font-size:1.05rem;font-weight:700;
-    cursor:pointer;letter-spacing:.02em;
-  }
-  .btn:disabled{opacity:.6;cursor:wait}
-  .q-preview{
-    font-size:.78rem;color:var(--sub);margin:12px 0 0;
-    font-family:ui-monospace,Consolas,monospace;word-break:break-word;
-  }
-  .q-preview.empty{display:none}
-  .error{
-    display:none;margin:0 0 16px;padding:12px 14px;border-radius:10px;
-    background:var(--panel);color:var(--danger);border:1px solid var(--line);
-    font-size:.9rem;white-space:pre-wrap;
-  }
-  .error.show{display:block}
-  .result{animation:pop .18s ease-out}
-  @keyframes pop{from{transform:translateY(8px);opacity:0}to{transform:none;opacity:1}}
-  .result-head{display:flex;gap:14px;align-items:flex-start}
-  .result img{
-    width:110px;height:auto;border-radius:10px;border:1px solid var(--line);
-    background:var(--card-bg);flex:0 0 auto;
-  }
-  .rname{font-size:1.3rem;font-weight:800;margin:0 0 4px}
-  .rmana{font-size:1rem;color:var(--sub);font-weight:600;margin:0 0 6px}
-  .rtype{font-style:italic;color:var(--sub);margin:0;font-size:.92rem}
-  .rtext{
-    background:var(--bg);border:1px solid var(--line);border-radius:10px;
-    padding:12px;font-size:.95rem;margin:14px 0 10px;white-space:pre-wrap;
-  }
-  .rmeta{font-size:.82rem;color:var(--sub);margin:0 0 12px}
-  .result-actions{display:flex;gap:10px;flex-wrap:wrap}
-  .action{
-    border:1px solid var(--line);background:var(--chip);color:var(--chip-ink);
-    padding:9px 14px;border-radius:10px;font:inherit;font-size:.9rem;font-weight:600;
-    cursor:pointer;text-decoration:none;display:inline-block;
-  }
-  ol.hist{margin:0;padding:0;list-style:none}
-  .hist-item{
-    list-style:none;margin:0 0 8px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;
-    display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--bg);
-  }
-  .hist-name{font-weight:600;text-decoration:none;color:var(--ink);word-break:break-word}
-  .hist-name:hover{text-decoration:underline}
-  .hist-time{font-size:.75rem;color:var(--sub);white-space:nowrap}
-  .hist-empty{color:var(--sub);font-size:.88rem;margin:0}
-  footer{text-align:center;font-size:.78rem;color:var(--sub);padding:0 16px 28px}
-  footer a{color:var(--sub)}
-  @media (max-width:480px){
-    .result img{width:88px}
-    .rname{font-size:1.15rem}
-  }
-  .hist li img{width:34px;height:48px;object-fit:cover;border-radius:4px;flex-shrink:0}
-/* result card */
-.cardArt { display: block; width: 100%; max-height: 440px; object-fit: contain; background: #efece4; border-radius: 12px 12px 0 0; }
-.cardBody { padding: 14px 16px 16px; }
-.cardBody h2 { margin: 0 0 8px; font-size: 1.2rem; line-height: 1.25; }
-.cardMeta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 10px; font-size: 0.82rem; color: var(--muted); }
-.badge { display: inline-block; background: var(--border); color: var(--ink); padding: 1px 9px; border-radius: 99px; font-weight: 600; font-size: 0.78rem; }
-.badge.cmc { background: #7a1f1f; color: #fff; }
-.cardText { margin: 0 0 12px; line-height: 1.5; font-size: 0.95rem; white-space: pre-line; }
-.cardActions { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-end; }
-.cardActions .reRoll { margin-top: 0; align-self: auto; }
-/* history list with thumbnails */
-#historyList { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
-#historyList li { display: flex; align-items: center; gap: 10px; background: var(--panel2); border: 1px solid var(--border); border-radius: 10px; padding: 6px 8px; }
-#historyList li img { width: 36px; height: 50px; object-fit: cover; border-radius: 5px; border: 1px solid var(--border); flex: none; }
-#historyList li span { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.9rem; }
-#historyList li button.rm { flex: none; width: 26px; height: 26px; border-radius: 8px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; font-size: 0.8rem; }
-#historyList li button.rm:hover { color: #b3423a; border-color: #b3423a; }
-</style>
-</head>
-<body>
-<header>
-  <h1>&#9855; MTG Randomizer</h1>
-  <button class="icon-btn" id="themeBtn" title="Toggle light/dark theme" aria-label="Toggle theme">&#127769;</button>
-</header>
+:root{--bg:#f0f0f1;--card:#fff;--ink:#1c1c1e;--mut:#636366;--line:#dcdcde;--ok:#157a4a;--warn:#a56a00;--bad:#c0322a;--okbg:#dcf3e6;--warnbg:#fff0cc;--badbg:#fbdcd8;--acc:#2a2a2c;--accink:#fff;--hr:#d62f25;--hy:#ffd23f;color-scheme:light}
+@media(prefers-color-scheme:dark){:root{--bg:#141414;--card:#1e1e1e;--ink:#efefef;--mut:#9a9a9a;--line:#333333;--ok:#5fd394;--warn:#f0bd4a;--bad:#ff7d72;--okbg:#12362a;--warnbg:#3b2f10;--badbg:#431a17;--acc:#efefef;--accink:#141414;--hr:#e5483d;--hy:#f2c230;color-scheme:dark}}
+*{box-sizing:border-box}[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}html.nosc,html.nosc body{overflow:hidden}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "Avenir Next","Segoe UI",system-ui,sans-serif;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)}
+header,main,footer{max-width:560px;margin:0 auto;padding:0 16px}
+header{position:relative;padding-top:20px;padding-right:64px}h1{margin:0;font-size:26px;letter-spacing:-.02em}header p{margin:2px 0 0;color:var(--mut)}
+#hb{position:absolute;right:16px;top:18px;width:44px;height:44px;border:1px solid var(--line);background:var(--card);border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:0}
+#hb span{display:block;width:20px;height:2.5px;border-radius:2px;background:var(--ink)}
+nav{display:flex;gap:6px;margin:16px 0}nav button{flex:1;position:relative;padding:10px 2px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;font:inherit;font-size:15px;font-weight:600;min-width:0;white-space:nowrap}
+nav button.on{background:var(--acc);color:var(--accink);border-color:var(--acc)}
+button{cursor:pointer;-webkit-appearance:none;appearance:none;-webkit-tap-highlight-color:transparent}button:disabled{opacity:.5;cursor:default}
+button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,summary:focus-visible,a:focus-visible{outline:3px solid var(--warn);outline-offset:2px}
+.pri{display:block;background:var(--acc);color:var(--accink);border:0;border-radius:10px;padding:12px 16px;font:inherit;font-weight:600;width:100%;text-align:center;text-decoration:none}
+.row{display:flex;gap:8px;margin:10px 0}
+input[type=text],input:not([type]),textarea{flex:1;min-width:0;padding:11px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:inherit;-webkit-appearance:none;appearance:none}
+textarea{display:block;width:100%;resize:vertical;margin:6px 0}
+select{flex:1;min-width:0;padding:11px 34px 11px 11px;border:1px solid var(--line);border-radius:10px;color:var(--ink);font:inherit;-webkit-appearance:none;appearance:none;background:linear-gradient(45deg,transparent 50%,var(--mut) 50%) calc(100% - 19px) 50%/6px 6px no-repeat,linear-gradient(135deg,var(--mut) 50%,transparent 50%) calc(100% - 13px) 50%/6px 6px no-repeat,var(--card)}
+.row button{padding:11px 16px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;font:inherit;font-weight:600}
+details{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:10px 0}summary{cursor:pointer;font-weight:600}
+.why{border-left:6px solid var(--line);background:var(--card);border-radius:10px;padding:10px 12px;margin:0 0 12px;font-size:15px}.why p{margin:0 0 4px}
+.why.err{border-left-color:var(--bad)}.upd{border-left-color:var(--acc);margin-top:10px}
+.links{display:flex;gap:8px;margin:8px 0}.links button,.links a{flex:1;text-align:center;padding:10px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font:inherit;font-size:14px;font-weight:600;text-decoration:none;min-width:0}
+.links .pri{background:var(--acc);color:var(--accink);border-color:var(--acc)}.upd .links{flex-wrap:wrap}.upd .links>*{flex:1 1 auto}
+.legend{font-size:13px;color:var(--mut);margin:0 0 12px}
+.empty{color:var(--mut);padding:20px 4px}
+footer{color:var(--mut);font-size:13px;padding-top:18px;padding-bottom:30px}footer a{color:inherit}
+.edl{display:block;margin:12px 0 0;font-size:14px;color:var(--mut);font-weight:600}.edl select,.edl input{display:block;width:100%;margin-top:4px;color:var(--ink);font-weight:400}
+.smallb{padding:9px 12px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;font:inherit;font-weight:600;font-size:14px}
+.seg{display:flex;background:var(--line);border-radius:12px;padding:3px;gap:3px;margin:0 0 12px}
+.seg button{flex:1;border:0;background:none;color:var(--ink);padding:9px 4px;border-radius:9px;font:inherit;font-size:14px;font-weight:600;min-width:0}
+.seg button.on{background:var(--card);box-shadow:0 1px 3px rgba(0,0,0,.25)}
+.aisle{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin:16px 0 4px;font-weight:700}
+.back{border:0;background:none;color:var(--ink);font:inherit;font-weight:700;padding:6px 0;margin-bottom:6px}
+#toast{position:fixed;left:16px;right:16px;bottom:calc(16px + env(safe-area-inset-bottom));max-width:528px;margin:0 auto;background:var(--acc);color:var(--accink);padding:10px 14px;border-radius:10px;text-align:center;z-index:60;box-shadow:0 4px 16px rgba(0,0,0,.3)}
+/* pool builder */
+.khint{margin:6px 0 10px}
+.combo{display:flex;margin:4px 0 8px}.vin{position:relative;flex:1;min-width:0;display:flex}
+.vin input{padding-right:42px}.combo:not(.nol) .vin input{border-radius:10px 0 0 10px}
+#vclr{position:absolute;right:2px;top:50%;transform:translateY(-50%);width:40px;height:40px;border:0;background:none;color:var(--mut);font-size:24px;line-height:1;padding:0}
+#pick{flex:none;width:54px;border:1px solid var(--line);border-left:0;border-radius:0 10px 10px 0;background:var(--card);color:var(--ink);font:inherit;font-size:13px;font-weight:700;padding:0}
+.combo.nol #pick{display:none}
+.verr{color:var(--bad);font-size:14px;font-weight:600;margin:0 0 8px}
+.sug{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 10px}.sug:empty{display:none}
+.sug button{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:99px;padding:6px 12px;font:600 14px/1.3 system-ui,sans-serif;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sug small{color:var(--mut);font-weight:500;margin-left:5px}.sug .legend{margin:2px 0 0}
+.pool{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 6px}.pool:empty{display:none}
+.pc{display:inline-flex;align-items:center;max-width:100%;border:1.5px solid var(--acc);background:var(--card);color:var(--ink);border-radius:99px;font:600 14px system-ui,sans-serif}
+.pc.neg{border-style:dashed;border-color:var(--bad);color:var(--bad)}
+.pc button{border:0;background:none;color:inherit;font:inherit;min-height:38px}
+.pc .pct{padding:6px 2px 6px 12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.pc .pcx{font-size:20px;line-height:1;padding:4px 12px 6px 8px}
+.dicew{display:flex;flex-direction:column;align-items:center;gap:8px;margin:18px 0 8px}
+#roll{width:120px;height:120px;border:0;border-radius:30px;background:var(--acc);color:var(--accink);padding:8px;box-shadow:0 8px 22px rgba(0,0,0,.28);transition:transform .12s}
+#roll:active{transform:scale(.93)}
+#roll svg,.vdie svg{display:block;width:100%;height:100%}
+#roll.busy,.vdie.busy{animation:tumble .5s ease-in-out infinite}
+@keyframes tumble{0%{transform:rotate(0) scale(1)}50%{transform:rotate(180deg) scale(.86)}100%{transform:rotate(360deg) scale(1)}}
+@media(prefers-reduced-motion:reduce){#roll.busy,.vdie.busy{animation:none;opacity:.6}}
+.dicel{font-weight:700}
+.qp{font-size:13px;color:var(--mut);text-align:center;margin:0 0 12px;word-break:break-word}
+.qp code{font:12.5px ui-monospace,Consolas,monospace;color:var(--ink)}.qp a{color:var(--ink);font-weight:600;white-space:nowrap}
+.ck{display:flex;gap:10px;align-items:center;margin:4px 0 8px;font-size:15px;cursor:pointer}.ck input{width:22px;height:22px;flex:none;accent-color:var(--acc);margin:0}
+#sbtn{margin:14px 0 12px}
+/* search results */
+.rhead{display:flex;align-items:center;gap:10px;margin:4px 0 10px}.rhead b{flex:1}.rhead select{flex:0 1 220px}
+.rgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-bottom:12px}
+.gc{display:block;border:0;padding:0;background:var(--line);border-radius:4.75%/3.4%;overflow:hidden;aspect-ratio:488/680;width:100%}
+.gc img{display:block;width:100%;height:100%;object-fit:cover}
+.noim{display:flex;align-items:center;justify-content:center;height:100%;padding:8px;text-align:center;font-size:13px;font-weight:600;color:var(--mut)}
+/* full-screen card */
+#vw{position:fixed;inset:0;z-index:45;background:#000;color:#fff;display:flex;flex-direction:column;padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);animation:fadein .15s ease}
+@keyframes fadein{from{opacity:0}to{opacity:1}}
+.vtop{display:flex;align-items:center;gap:10px;padding:8px 12px 4px}
+.vt{flex:1;min-width:0}.vt b{display:block;font-size:17px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.vt small{display:block;color:#b9b9b9;font-size:13px}
+.vx{flex:none;width:44px;height:44px;border:0;background:rgba(255,255,255,.14);color:#fff;border-radius:12px;font-size:28px;line-height:1;padding:0}
+.vimg{flex:1;min-height:0;position:relative;touch-action:pan-y pinch-zoom}
+#vi{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);max-width:calc(100% - 24px);max-height:calc(100% - 12px);border-radius:4.75%/3.4%;transition:opacity .15s;-webkit-user-select:none;user-select:none}
+.vimg.art #vi{border-radius:10px}.vimg.ld #vi{opacity:.3}.vimg.noi #vi{display:none}
+#vph{display:none;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(70%,300px);aspect-ratio:488/680;border:2px dashed #555;border-radius:4.75%/3.4%;align-items:center;justify-content:center;text-align:center;padding:16px;color:#ccc;font-weight:600}
+.vimg.noi #vph{display:flex}
+.vsp{display:none;position:absolute;left:50%;top:50%;width:44px;height:44px;margin:-22px 0 0 -22px;border:4px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%;animation:sp .8s linear infinite}
+.vimg.ld .vsp{display:block}@keyframes sp{to{transform:rotate(360deg)}}
+.vnav{position:absolute;top:50%;transform:translateY(-50%);left:6px;z-index:1;width:42px;height:72px;border:0;background:rgba(0,0,0,.45);color:#fff;font-size:34px;line-height:1;padding:0 0 4px;border-radius:12px}.vnav.r{left:auto;right:6px}
+.vcap{margin:0;padding:4px 16px 0;text-align:center;color:#c4c4c4;font-size:13px;line-height:1.4}
+.vbar{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;padding:10px 12px 14px}
+.vbar>button:not(.vdie),.vbar a{min-height:44px;padding:10px 14px;border:1px solid rgba(255,255,255,.28);background:rgba(255,255,255,.1);color:#fff;border-radius:12px;font:600 14px system-ui,sans-serif;text-decoration:none;display:inline-flex;align-items:center}
+.vdie{width:60px;height:60px;border:0;border-radius:16px;background:var(--acc);color:var(--accink);padding:5px}
+/* bottom sheets */
+.sheet{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:40;display:flex;align-items:flex-end}.sheet.s2{z-index:50}
+.sheetb{width:100%;max-width:560px;margin:0 auto;background:var(--card);color:var(--ink);border-radius:18px 18px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));max-height:88vh;overflow:auto;overscroll-behavior:contain;animation:slideup .18s ease}
+@keyframes slideup{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+.sheetb h2{margin:0;font-size:20px;min-width:0;overflow-wrap:anywhere}
+#pkb{height:88vh;display:flex;flex-direction:column;overflow:hidden}#pkb>input{flex:none;margin-bottom:10px}
+.pkl{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;margin:0 -16px;padding:0 16px}
+.pki{display:flex;align-items:baseline;gap:10px;width:100%;text-align:left;padding:11px 4px;border:0;border-bottom:1px solid var(--line);background:none;color:var(--ink);font:inherit}
+.pki span{flex:1;min-width:0;overflow-wrap:anywhere}.pki small{color:var(--mut);font-size:13px;flex:none}.pki.use{font-weight:700}
+.mlist{display:grid;gap:8px;margin:10px 0}
+/* decks and history */
+.item{display:flex;gap:12px;align-items:center;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px;margin-bottom:8px;cursor:pointer}
+.item>div{flex:1;min-width:0}.item b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.item small{display:block;color:var(--mut);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.item .x{border:0;background:none;color:var(--mut);font-size:22px;padding:4px 8px}
+.th{flex:none;width:40px;height:56px;border-radius:4px;object-fit:cover;background:var(--line)}
+.cov{flex:none;width:64px;height:48px;border-radius:8px;object-fit:cover;background:var(--line)}
+.pph{display:inline-flex;align-items:center;justify-content:center;color:var(--mut);font-size:22px}
+.chev{color:var(--mut);font-size:24px}
+.hh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px}
+.dtitle{margin:0;font-size:25px;line-height:1.15;letter-spacing:-.02em;overflow-wrap:anywhere}
+.dgr{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin:18px 0 2px;font-weight:700}
+.dlr{display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)}
+.dlr .dth{flex:none;border:0;padding:0;background:none;border-radius:4px;line-height:0}
+.dlr .dnm{flex:1;min-width:0;border:0;background:none;color:var(--ink);text-align:left;padding:2px 0;font:inherit}
+.dnm b{display:block;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dnm small{display:block;color:var(--mut);font-size:13px;min-height:18px}
+.qty{display:flex;align-items:center;gap:2px;flex:none}.qty button{width:36px;height:36px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;font-size:19px;line-height:1;padding:0}.qty span{min-width:26px;text-align:center;font-weight:700}
+.ms{width:15px;height:15px;vertical-align:-2px;margin-right:1px}.pips{display:inline-flex;gap:1px;vertical-align:-1px}
+.hgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:10px 0}
+/* menu, themes (same as TickedOff) */
+#scrim{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20}
+#drawer{position:fixed;top:0;right:0;bottom:0;width:min(350px,90vw);background:var(--card);color:var(--ink);z-index:21;overflow:auto;padding:calc(14px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom));box-shadow:-10px 0 30px rgba(0,0,0,.3);animation:slidein .18s ease}
+@keyframes slidein{from{transform:translateX(24px);opacity:0}to{transform:none;opacity:1}}
+#drawer h2{font-size:20px;margin:0}#drawer h3{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mut);margin:20px 0 8px}
+.dh{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.dh button{flex:none;width:40px;height:40px;border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;font-size:22px;line-height:1;padding:0}
+.menub{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:13px 14px;border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;font:inherit;font-weight:700}
+.menub small{margin-left:auto;color:var(--mut);font-weight:600;white-space:nowrap}#drawer .menub+.menub{margin-top:8px}
+.tg{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);background:var(--bg);border-radius:12px;cursor:pointer}
+.tg span{flex:1;min-width:0}.tg b{display:block}.tg small{display:block;color:var(--mut);font-size:13px;line-height:1.35;margin-top:2px}
+.tg input{-webkit-appearance:none;appearance:none;flex:none;width:50px;height:30px;border-radius:99px;background:var(--line);position:relative;margin:0;cursor:pointer;transition:background .15s}
+.tg input::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35);transition:transform .15s}
+.tg input:checked{background:var(--acc)}.tg input:checked::after{transform:translateX(20px);background:var(--accink)}
+.swg{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.sw{display:flex;align-items:center;gap:8px;padding:9px 10px;border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:12px;font:inherit;font-size:14px;font-weight:600;text-align:left;min-width:0}
+.sw[aria-pressed=true]{border-color:var(--acc)}
+.dots{display:inline-flex;flex:none;border-radius:99px;overflow:hidden;border:1px solid rgba(127,127,127,.4)}.dots i{display:block;width:12px;height:22px}
+.cust{display:flex;gap:10px}.cust label{flex:1;font-size:13px;color:var(--mut);display:block}
+.cust input[type=color]{display:block;width:100%;height:42px;padding:2px;border:1px solid var(--line);border-radius:10px;background:var(--bg);margin-top:4px}
+/* changelog popup (same as TickedOff) */
+#chl{position:fixed;inset:0;z-index:55;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px}
+.chp{background:var(--card);color:var(--ink);border-radius:16px;width:100%;max-width:520px;max-height:min(80vh,640px);display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,.4);overflow:hidden}
+.chh{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px 8px 8px 16px;border-bottom:1px solid var(--line)}
+.chh h2{margin:0;font-size:20px}
+#chlx{border:0;background:none;color:var(--ink);font-size:30px;line-height:1;min-width:44px;min-height:44px;padding:0;cursor:pointer}
+.chb{overflow-y:auto;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;padding:2px 16px 16px;flex:1;min-height:0}
+.chb h3{font-size:17px;margin:16px 0 6px}.chb h3 small{color:var(--mut);font-weight:500;font-size:13px}
+.chb ul{margin:4px 0;padding-left:20px}.chb li{margin:5px 0;line-height:1.4;font-size:15px}.chb p{font-size:15px;line-height:1.4}
+.chb code{font-size:.9em;background:var(--bg);padding:1px 4px;border-radius:4px}
+.chfull{margin-top:18px;padding-top:12px;border-top:1px solid var(--line)}.chfull a{color:var(--ink);font-weight:600}
+@media(max-width:360px){.vbar>button:not(.vdie),.vbar a{padding:10px 10px}.seg button{font-size:13px}}
+</style></head><body>
+<header><h1><img id="logo" alt="" width="36" height="36" style="vertical-align:-8px;margin-right:8px">MTG Randomizer</h1><p>Pick a pool. Roll the dice. See the card.</p><button id="hb" aria-label="Menu" aria-expanded="false" aria-controls="drawer"><span></span><span></span><span></span></button></header>
 <main>
-  <section class="panel" aria-label="Card pool filters">
-    <h2>Build your pool</h2>
-    <div class="chips" id="colorChips" role="group" aria-label="Color identity">
-      <button class="chip" data-color="W">W</button>
-      <button class="chip" data-color="U">U</button>
-      <button class="chip" data-color="B">B</button>
-      <button class="chip" data-color="R">R</button>
-      <button class="chip" data-color="G">G</button>
-    </div>
-
-    <div class="row">
-      <div>
-        <label class="fld" for="raritySel">Rarity</label>
-        <select id="raritySel">
-          <option value="">Any</option>
-          <option value="common">Common</option>
-          <option value="uncommon">Uncommon</option>
-          <option value="rare">Rare</option>
-          <option value="mythic">Mythic</option>
-        </select>
-      </div>
-      <div>
-        <label class="fld" for="cmcInput">Converted mana cost</label>
-        <input type="number" id="cmcInput" inputmode="numeric" min="0" max="20" placeholder="Any (e.g. 3)">
-      </div>
-    </div>
-
-    <div class="row">
-      <div>
-        <label class="fld" for="legalSet">Legal in set</label>
-        <select id="legalSet"><option value="">Any set</option></select>
-      </div>
-      <div>
-        <label class="fld" for="notSet">Exclude set</label>
-        <select id="notSet"><option value="">None</option></select>
-      </div>
-    </div>
-
-    <div class="grp">
-      <span class="grp-label">Content</span>
-      <div class="chips" id="contentChips" role="group" aria-label="Content filters">
-        <button class="chip" data-content="creature">Creatures</button>
-        <button class="chip" data-content="artifacts">Artifacts</button>
-        <button class="chip" data-content="enchantments">Enchantments</button>
-        <button class="chip" data-content="creature-types">Creature types</button>
-      </div>
-    </div>
-
-    <div class="grp">
-      <span class="grp-label">Exclusions</span>
-      <div class="chips" id="excludeChips" role="group" aria-label="Exclusions">
-        <button class="chip" data-exclude="sagas">Exclude sagas</button>
-        <button class="chip" data-exclude="tokens">Exclude tokens</button>
-        <button class="chip" data-exclude="conventions">Exclude conventions</button>
-      </div>
-    </div>
-
-    <label class="fld" for="freeText">Free-text query (Scryfall syntax)</label>
-    <input type="text" id="freeText" placeholder='e.g. name~"storm" is:split' spellcheck="false">
-
-    <button class="btn" id="rollBtn">&#127922; Roll a card</button>
-    <p class="q-preview empty" id="queryPreview"></p>
-  </section>
-
-  <div class="error" id="errorBox" role="alert"></div>
-
-  <section class="panel result" id="resultPanel" hidden aria-live="polite">
-    <h2>Result <span id="poolInfo" style="text-transform:none;letter-spacing:0;font-weight:500"></span></h2>
-    <div class="result-head">
-      <img id="cArt" alt="">
-      <div>
-        <h3 class="rname" id="cName"></h3>
-        <p class="rmana" id="cMana"></p>
-        <p class="rtype" id="cType"></p>
-      </div>
-    </div>
-    <div class="rtext" id="cText"></div>
-    <p class="rmeta" id="cMeta"></p>
-    <div class="result-actions">
-      <a class="action" id="cLink" target="_blank" rel="noopener">Open on Scryfall</a>
-      <button class="action" id="reRollBtn">Roll another</button>
-    </div>
-  </section>
-
-  <section class="panel" aria-label="Roll history">
-    <h2>History <button class="action" id="clearHist" style="margin-top:-18px;padding:4px 10px">Clear</button></h2>
-    <ul id="historyList"></ul>
-    <p class="hist-empty" id="histEmpty" hidden>No rolls yet. Build a pool and roll!</p>
-  </section>
+<div id="upd" class="why upd" hidden role="status"></div>
+<nav><button id="t1" class="on">Randomize</button><button id="t2">Decks</button><button id="t3">History</button></nav>
+<section id="v1">
+ <label class="edl" style="margin-top:0">Search by<select id="kind"></select></label>
+ <p class="legend khint" id="khint"></p>
+ <label class="edl" for="val" id="vlab"></label>
+ <div class="combo" id="combo"><div class="vin"><input type="text" id="val" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go"><button id="vclr" type="button" aria-label="Clear" hidden>×</button></div><button id="pick" type="button" aria-label="Show the full list">▾ All</button></div>
+ <p class="verr" id="verr" hidden role="alert"></p>
+ <div class="sug" id="sug"></div>
+ <div class="pool" id="pool"></div>
+ <p class="legend" id="poolh" hidden>Tap a filter to switch between <b>must have</b> and <b>must not have</b>.</p>
+ <button class="smallb" id="addc" type="button">+ Add another filter</button>
+ <div class="dicew" id="dicew"><button id="roll" type="button" aria-label="Roll a random card"></button><span class="dicel">Tap the dice to roll</span></div>
+ <button class="pri" id="sbtn" type="button" hidden>🔍 Search</button>
+ <p class="qp" id="qp"></p>
+ <div id="msg" class="why err" hidden role="alert"></div>
+ <details id="opts"><summary>More options</summary>
+  <p class="legend" style="margin:10px 0 6px">Printings</p>
+  <div class="seg" id="uniq"><button type="button" data-u="cards">Each card once</button><button type="button" data-u="art">Every artwork</button><button type="button" data-u="prints">Every printing</button></div>
+  <label class="ck"><input type="checkbox" id="extras"> Include tokens, emblems and other extras</label>
+  <p class="legend">With “Every artwork” or “Every printing”, cards that were printed many times come up more often, and each roll can use more mobile data.</p>
+ </details>
+ <div id="res" hidden></div>
+</section>
+<section id="v2" hidden>
+ <div id="dl"><button class="pri" id="dnew" type="button" style="margin-bottom:12px">+ New deck</button><div id="dlist"></div></div>
+ <div id="dd" hidden></div>
+</section>
+<section id="v3" hidden><div id="hist"></div></section>
+<section id="v4" hidden><button class="back" id="bkback">‹ Back</button><h2 style="margin:0">Export / Import Settings</h2><p class="legend">Back up your decks, roll history, pool, settings and theme, or move them to another device.</p><div class="row"><button id="xs" style="flex:1">Export Settings</button><button id="is" style="flex:1">Import Settings</button></div><div id="bk" class="why" hidden></div><input type="file" id="bf" accept=".json,application/json,text/plain" hidden></section>
 </main>
-<footer>
-  Card data courtesy of <a href="https://scryfall.com" target="_blank" rel="noopener">Scryfall</a>.
-  This is not affiliated with or endorsed by Wizards of the Coast.
-</footer>
-<!--SCRIPT_ANCHOR-->
-<script>
-"use strict";
-const API = "https://api.scryfall.com";
-const $ = (id) => document.getElementById(id);
+<footer>Card data and images come from <a href="https://scryfall.com" target="_blank" rel="noopener">Scryfall</a>; function and art tags come from Scryfall Tagger. MTG Randomizer is unofficial Fan Content permitted under the Fan Content Policy. Not approved or endorsed by Wizards. Portions of the materials used are property of Wizards of the Coast. ©Wizards of the Coast LLC.<br>v<span id="ftv"></span></footer>
+<div id="scrim" hidden></div>
+<aside id="drawer" hidden aria-label="Menu">
+ <div class="dh"><h2>Menu</h2><button id="dclose" aria-label="Close menu">×</button></div>
+ <h3>Settings</h3>
+ <label class="tg"><span><b>Randomizer</b><small id="srandt"></small></span><input type="checkbox" id="srand" role="switch"></label>
+ <h3>Themes</h3>
+ <div id="thl"></div>
+ <h3>Custom colors</h3>
+ <div class="cust"><label>Background<input type="color" id="cbg" value="#0f161d"></label><label>Accent<input type="color" id="cac" value="#4f8cff"></label></div>
+ <p class="legend" style="margin-top:8px">Text and card colors are chosen automatically so everything stays readable.</p>
+ <button class="smallb" id="crs">Reset to automatic</button>
+ <h3>Backup</h3>
+ <button class="menub" id="mbk"><span aria-hidden="true">💾</span> Export / Import Settings</button>
+ <h3>App</h3>
+ <button class="menub" id="mupd"><span aria-hidden="true">🔄</span> Check for updates <small id="mupdv"></small></button>
+ <button class="menub" id="mchl"><span aria-hidden="true">📝</span> Show Changelog</button>
+</aside>
+<div id="vw" hidden role="dialog" aria-modal="true" aria-label="Card">
+ <div class="vtop"><button class="vx" id="vx" aria-label="Close">×</button><div class="vt"><b id="vn"></b><small id="vc"></small></div></div>
+ <div class="vimg" id="vimg"><img id="vi" alt="" draggable="false"><div id="vph"></div><div class="vsp"></div><button class="vnav" id="vprev" aria-label="Previous card">‹</button><button class="vnav r" id="vnext" aria-label="Next card">›</button></div>
+ <p class="vcap" id="vcap"></p>
+ <div class="vbar"><button id="vflip" type="button">⇄ Flip</button><button id="vart" type="button">Art only</button><button id="vadd" type="button">+ Deck</button><a id="vsf" target="_blank" rel="noopener">Scryfall ↗</a><button class="vdie" id="vroll" type="button" aria-label="Roll another card"></button></div>
+</div>
+<div id="sh" class="sheet" hidden><div class="sheetb" id="shb" role="dialog" aria-modal="true"></div></div>
+<div id="sh2" class="sheet s2" hidden><div class="sheetb" id="sh2b" role="dialog" aria-modal="true"></div></div>
+<div id="pk" class="sheet" hidden><div class="sheetb" id="pkb" role="dialog" aria-modal="true" aria-labelledby="pkt">
+ <div class="dh"><h2 id="pkt"></h2><button id="pkx" aria-label="Close list">×</button></div>
+ <input type="text" id="pkq" placeholder="Filter the list" aria-label="Filter the list" autocomplete="off" autocapitalize="off" spellcheck="false">
+ <div class="seg" id="pks" hidden><button type="button" data-o="c">Most cards</button><button type="button" data-o="a">A–Z</button></div>
+ <p class="legend" id="pkn" role="status"></p>
+ <div class="pkl" id="pkl"></div>
+</div></div>
+<div id="toast" hidden role="status"></div>
+<script type="text/markdown" id="chlog">
+### v1.1.0 (latest)
+- **Rebuilt to look and work like TickedOff.** Same layout, menu and themes (Auto, Light, Default, Dark, five high contrast, five low contrast and six seasonal, plus your own colors), update notices and in-app changelog.
+- **Search by Type, Function, Art and more.** Choose what to search by (Type, Function, Art, Keyword, Color, Mana value, Rarity, Set, Format, Artist, Card name, Rules text or your own Scryfall search), then type or pick a value. Suggestions appear as you type, and **▾ All** lists every value you can pick.
+- **Scryfall Tagger built in.** Every function tag (otag, for example `removal` or `ramp`) and art tag (for example `dragon` or `moon`), with how many cards each one covers.
+- **Stack filters.** **+ Add another filter** combines them, for example Zombie + removal. Tap a filter to switch it to "must not have".
+- **The dice.** Tap it to roll a random card from your pool. The card opens full screen: tap the dice (or swipe left) to roll again, and swipe right to look back at earlier rolls.
+- **Randomizer switch.** Menu → Settings → Randomizer. Turn it off and the app becomes a normal card search that shows every matching card.
+- **Decks.** Create decks, add cards from the full-screen view, change counts, draw a sample hand, add random cards from your pool, and import or export deck lists.
+- **History** of your last 100 rolls, and **Export / Import Settings** for backups.
+- **Android updates now install over the old version** and keep your decks. If you installed v1.0.0, uninstall it once before installing v1.1.0.
 
-/* ---------- theme ---------- */
-const THEME_KEY = "mtgr-theme";
-function applyTheme(name) {
-  const dark = name === "dark" ||
-    (!name && window.matchMedia("(prefers-color-scheme: dark)").matches);
-  document.documentElement.classList.toggle("dark", dark);
-  $("themeBtn").textContent = dark ? "\u2600\uFE0F" : "\u263E";
-}
-applyTheme(localStorage.getItem(THEME_KEY));
-$("themeBtn").addEventListener("click", () => {
-  const next = document.documentElement.classList.contains("dark") ? "light" : "dark";
-  try { localStorage.setItem(THEME_KEY, next); } catch (e) { /* storage unavailable */ }
-  applyTheme(next);
-});
-
-/* ---------- set dropdowns ---------- */
-async function loadSets() {
-  const sels = [$("legalSet"), $("notSet")];
-  for (const sel of sels) sel.innerHTML = '<option value="">(any)</option>';
-  try {
-    const res = await fetch(API + "/sets?order=release_date&unique=expansion");
-    const data = await res.json();
-    const sets = (data.data || []).slice().reverse();
-    const opts = sets.map(s =>
-      '<option value="' + s.code + '">' +
-      s.name.replace(/"/g, "&quot;") + "</option>").join("");
-    for (const sel of sels) sel.insertAdjacentHTML("beforeend", opts);
-  } catch (e) {
-    console.warn("Could not load sets:", e);
-  }
-}
-loadSets();
-
-/* ---------- chip groups ---------- */
-function wireChips(groupId) {
-  const box = $(groupId);
-  box.addEventListener("click", (e) => {
-    const btn = e.target.closest("button.chip");
-    if (!btn) return;
-    btn.classList.toggle("on");
-    updatePreview();
-  });
-  return () => Array.from(box.querySelectorAll("button.on")).map(b =>
-    b.getAttribute(groupId === "colorChips" ? "data-color"
-      : groupId === "contentChips" ? "data-content"
-      : "data-exclude"));
-}
-const selColors = wireChips("colorChips");
-const selContent = wireChips("contentChips");
-const selExclude = wireChips("excludeChips");
-
-/* ---------- Scryfall query ---------- */
-function buildQuery() {
-  const q = [];
-  const allColors = selColors();
-  const letters = allColors.filter(c => /^[WUBRG]$/.test(c));
-  if (letters.length) q.push("colors=" + letters.join(""));
-  if (allColors.includes("colorless")) q.push("colorless");
-  const content = selContent();
-  if (content.includes("creature")) q.push("is:creature");
-  if (content.includes("artifacts")) q.push("is:artifact");
-  if (content.includes("enchantments")) q.push("is:enchantment");
-  if (content.includes("creature-types")) q.push("is:legendary");
-  const excluded = selExclude();
-  if (excluded.includes("sagas")) q.push("-is:saga");
-  if (excluded.includes("tokens")) q.push("is:token=false");
-  if (excluded.includes("conventions")) q.push("-is:convention");
-  const rar = $("raritySel").value;
-  if (rar) q.push("rarity:" + rar);
-  const cmc = ($("cmcInput").value || "").replace(/\D/g, "");
-  if (cmc) q.push("cmc=" + cmc);
-  const legal = $("legalSet").value;
-  if (legal) q.push("set:" + legal);
-  const not = $("notSet").value;
-  if (not) q.push("-set:" + not);
-  const free = $("freeText").value.trim();
-  if (free) q.push(free);
-  if (!q.length) q.push("is:legal");
-  return q.join(" ");
-}
-
-function updatePreview() {
-  $("queryPreview").textContent = buildQuery();
-}
-/* ---------- rolling ---------- */
-const PAGE_SIZE = 250;    /* Scryfall maximum page size */
-const OFFSET_CAP = 1800;  /* Scryfall maximum offset */
-let busy = false;
-
-async function fetchJson(url, statusPanel) {
-  let res = await fetch(url);
-  if (res.status === 429) {
-    const secs = parseInt(res.headers.get("Retry-After"), 10) || 5;
-    if (statusPanel) statusPanel.innerHTML =
-      "Rate limited &mdash; retrying in " + secs + "s\u2026";
-    await new Promise(r => setTimeout(r, secs * 1000 + 300));
-    res = await fetch(url);
-  }
-  if (!res.ok) throw new Error("Scryfall responded " + res.status);
-  return res.json();
-}
-
-async function roll() {
-  if (busy) return;
-  busy = true;
-  $("rollBtn").disabled = true;
-  const panel = $("resultPanel");
-  panel.className = "card status";
-  panel.innerHTML = '<div class="spinner"></div>Rolling\u2026';
-  try {
-    const q = encodeURIComponent(buildQuery());
-    let card = null;
-    try {
-      /* Preferred: Scryfall's own random-card endpoint (uniform over the full pool) */
-      card = await fetchJson(API + "/cards/random?query=" + q, panel);
-    } catch (firstErr) {
-      /* Fallback: random page of 250 cards, then a random card from that page.
-         (offset is capped at 1800 by the API, so pages, not raw offsets) */
-      const meta = await fetchJson(API + "/cards?query=" + q + "&page_size=1", panel);
-      const total = meta.total_cards || 0;
-      if (!total) throw new Error("no cards match those filters");
-      const pages = Math.min(
-        Math.ceil(total / PAGE_SIZE),
-        Math.floor(OFFSET_CAP / PAGE_SIZE) + 1);
-      const offset = Math.floor(Math.random() * pages) * PAGE_SIZE;
-      const page = await fetchJson(
-        API + "/cards?query=" + q +
-        "&page_size=" + PAGE_SIZE + "&offset=" + offset, panel);
-      const cards = page.data || [];
-      if (!cards.length) throw new Error("no cards match those filters");
-      card = cards[Math.floor(Math.random() * cards.length)];
-    }
-    showResult(card);
-    pushHistory(card);
-  } catch (e) {
-    panel.className = "card status";
-    panel.innerHTML = "Could not roll: <b>" + esc(e && e.message ? e.message : e) +
-      "</b><br>Check your connection and filters, then try again.";
-  } finally {
-    busy = false;
-    $("rollBtn").disabled = false;
-  }
-}
-$("rollBtn").addEventListener("click", roll);
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && e.target === $("freeText")) roll();
-});
-["raritySel", "cmcInput", "legalSet", "notSet", "freeText"]
-  .forEach(id => $(id).addEventListener("input", updatePreview));
-updatePreview();
-/* ---------- result rendering ---------- */
-function esc(v) {
-  return String(v == null ? "" : v).replace(/[&<>"']/g, c =>
-    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
-}
-
-function showResult(card) {
-  const panel = $("resultPanel");
-  panel.className = "card";
-  const img = card.image_uris && card.image_uris.png_uri;
-  let meta = "";
-  if (card.cmc != null) meta += '<span class="badge cmc">' + esc(card.cmc) + "</span>";
-  const colors = card.colors || [];
-  if (colors.length) meta += '<span class="badge">' + esc(colors.join(" ")) + "</span>";
-  else if (card.colorIdentity) meta += '<span class="badge">' + esc(card.colorIdentity) + "</span>";
-  if (card.rarity) meta += '<span class="badge">' + esc(card.rarity) + "</span>";
-  if (card.type_line) meta += "<span>" + esc(card.type_line) + "</span>";
-  const link = "https://scryfall.com/cards/" + encodeURIComponent(card.id || "");
-  panel.innerHTML =
-    (img ? '<img class="cardArt" src="' + esc(img) + '" alt="' + esc(card.name) + '">' : "") +
-    '<div class="cardBody">' +
-      "<h2>" + esc(card.name) + "</h2>" +
-      (meta ? '<div class="cardMeta">' + meta + "</div>" : "") +
-      (card.oracle_text ? '<p class="cardText">' + esc(card.oracle_text) + "</p>" : "") +
-      '<div class="cardActions">' +
-        '<a class="reRoll" href="' + esc(link) + '" target="_blank" rel="noopener">View on Scryfall</a>' +
-        '<button class="reRoll" type="button" id="againBtn">Roll again</button>' +
-      "</div>" +
-    "</div>";
-  $("againBtn").addEventListener("click", roll);
-}
-
-/* ---------- history ---------- */
-const HISTORY_KEY = "mtgr-history";
-const HISTORY_MAX = 10;
-
-function loadHistory() {
-  try {
-    const list = JSON.parse(localStorage.getItem(HISTORY_KEY));
-    return Array.isArray(list) ? list : [];
-  } catch (e) {
-    return [];
-  }
-}
-
-function saveHistory(list) {
-  list = (list || []).slice(0, HISTORY_MAX);
-  try { localStorage.setItem(HISTORY_KEY, JSON.stringify(list)); }
-  catch (e) { console.warn("Could not save history:", e); }
-  renderHistory();
-}
-
-function pushHistory(card) {
-  const entry = {
-    id: card.id,
-    name: card.name,
-    img: card.image_uris && card.image_uris.png_uri,
-    ts: Date.now()
-  };
-  saveHistory([entry].concat(loadHistory().filter(h => h.id !== entry.id)));
-}
-
-function renderHistory() {
-  const ul = $("historyList");
-  const list = loadHistory();
-  ul.innerHTML = list.map(h =>
-    '<li data-id="' + esc(h.id) + '">' +
-      (h.img ? '<img src="' + esc(h.img) + '" alt="" loading="lazy">' : "") +
-      "<span>" + esc(h.name) + "</span>" +
-      '<button class="rm" type="button" title="Remove" aria-label="Remove ' +
-        esc(h.name) + '">\u2715</button>' +
-    "</li>").join("");
-  $("clearHist").disabled = list.length === 0;
-}
-
-$("historyList").addEventListener("click", (e) => {
-  const btn = e.target.closest("button.rm");
-  if (!btn) return;
-  const id = btn.closest("li").getAttribute("data-id");
-  saveHistory(loadHistory().filter(h => h.id !== id));
-});
-$("clearHist").addEventListener("click", () => saveHistory([]));
-renderHistory();
+### v1.0.0
+- First release: roll a random card filtered by color, rarity, mana value and set.
 </script>
-</body>
-</html>
+<script>
+// ---------- basics ----------
+const $=s=>document.querySelector(s);
+const ls={get(k,d){try{const v=JSON.parse(localStorage.getItem(k));return v==null?d:v}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){if(!ls.warned){ls.warned=1;setTimeout(()=>ls.warned=0,15000);toast('Couldn’t save. Your device storage may be full.')}}}};
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const fmtN=n=>Number(n||0).toLocaleString('en-US');
+const APPV='1.1.0';
+const IOSAPP=!!(window.webkit&&window.webkit.messageHandlers&&window.webkit.messageHandlers.ios);
+const API='https://api.scryfall.com',PAGE=175,HMAX=100,hex=/^#[0-9a-f]{6}$/i;
+const finePtr=matchMedia('(pointer:fine)').matches;
+function toast(t){const e=$('#toast');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,3500)}
+function syncNosc(){document.documentElement.classList.toggle('nosc',['#vw','#sh','#sh2','#pk','#chl'].some(s=>{const e=$(s);return e&&!e.hidden}))}
+// ---------- cards as stored on this device ----------
+// slim() keeps only what the app shows. Image links are stored once ("normal" size); other sizes swap that word.
+const IMG=/^https:\/\/cards\.scryfall\.io\/normal\/(?:front|back)\/[\w\/.-]+\.(?:jpg|png)(?:\?\d+)?$/;
+function slim(c){
+ const f=Array.isArray(c.card_faces)?c.card_faces:[],f0=f[0]||{},f1=f[1]||{},top=c.image_uris;
+ const im=(top||f0.image_uris||{}).normal||'',im2=!top&&f1.image_uris?f1.image_uris.normal||'':'';
+ return{id:c.id,n:c.name,mc:c.mana_cost||f.map(x=>x.mana_cost).filter(Boolean).join(' // '),t:c.type_line||f.map(x=>x.type_line).filter(Boolean).join(' // '),cmc:typeof c.cmc=='number'?c.cmc:0,ci:(c.colors||f0.colors||[]).join(''),r:c.rarity||'',s:c.set||'',sn:c.set_name||'',cn:c.collector_number||'',a:c.artist||f0.artist||'',u:c.scryfall_uri||'',im,im2,f2:im2?f1.name||'':'',l:c.layout||''}}
+function cleanCard(x){
+ if(!x||typeof x!='object'||typeof x.id!='string'||!/^[0-9a-f-]{36}$/.test(x.id)||typeof x.n!='string')return null;
+ const S=(v,n)=>typeof v=='string'?v.slice(0,n):'';
+ return{id:x.id,n:S(x.n,150),mc:S(x.mc,80),t:S(x.t,150),cmc:typeof x.cmc=='number'&&isFinite(x.cmc)?x.cmc:0,ci:S(x.ci,5).replace(/[^WUBRG]/g,''),r:S(x.r,12),s:S(x.s,8),sn:S(x.sn,80),cn:S(x.cn,12),a:S(x.a,120),u:/^https:\/\/scryfall\.com\//.test(x.u)?S(x.u,300):'',im:IMG.test(x.im)?x.im:'',im2:IMG.test(x.im2)?x.im2:'',f2:S(x.f2,150),l:S(x.l,24).replace(/[^a-z_]/g,'')}}
+const imgUrl=(c,size,back)=>{const u=back&&c.im2?c.im2:c.im;return u?u.replace('/normal/','/'+size+'/'):''};
+const sym=x=>'<img class="ms" alt="{'+esc(x)+'}" src="https://svgs.scryfall.io/card-symbols/'+encodeURIComponent(x.replace(/\//g,''))+'.svg">';
+const mana=s=>String(s||'').split(/(\{[^}]+\})/).map(p=>/^\{[^}]+\}$/.test(p)?sym(p.slice(1,-1)):esc(p)).join('');
+function ago(ts){const m=Math.round((Date.now()-ts)/6e4);if(m<1)return'just now';if(m<60)return m+' min ago';const h=Math.round(m/60);if(h<24)return h+' h ago';const d=new Date(ts);return d.toLocaleDateString(undefined,{month:'short',day:'numeric'})}
+const PIPS={1:[[32,32]],2:[[20,20],[44,44]],3:[[20,20],[32,32],[44,44]],4:[[20,20],[44,20],[20,44],[44,44]],5:[[20,20],[44,20],[32,32],[20,44],[44,44]],6:[[20,17],[44,17],[20,32],[44,32],[20,47],[44,47]]};
+const dieSvg=f=>'<svg viewBox="0 0 64 64" aria-hidden="true" focusable="false">'+PIPS[f].map(([x,y])=>'<circle cx="'+x+'" cy="'+y+'" r="5.8" fill="currentColor"/>').join('')+'</svg>';
+function dice(on){['#roll','#vroll'].forEach(s=>{const b=$(s);b.classList.toggle('busy',on);if(!on)b.innerHTML=dieSvg(1+Math.floor(Math.random()*6))})}
+// ---------- settings ----------
+const ORDERS=[['name','Name','asc'],['released','Newest first','desc'],['cmc','Mana value','asc'],['color','Color','asc'],['rarity','Rarest first','desc'],['edhrec','Most played (EDHREC)','asc'],['usd','Price, highest first','desc'],['artist','Artist','asc'],['set','Set','asc']];
+const ORD=()=>ORDERS.find(o=>o[0]==cfg.order)||ORDERS[0];
+function cleanCfg(c){c=c&&typeof c=='object'?c:{};return{rand:c.rand!==false,uniq:['cards','art','prints'].includes(c.uniq)?c.uniq:'cards',extras:c.extras===true,order:ORDERS.some(o=>o[0]==c.order)?c.order:'name',last:typeof c.last=='string'?c.last.slice(0,40):''}}
+let cfg=cleanCfg(ls.get('mtgr_cfg',null));
+const saveCfg=()=>ls.set('mtgr_cfg',cfg);
+// ---------- back button support: every sub-screen is a "layer" in the browser history ----------
+const layers=[];let skipPop=0,curTab=1;
+function enter(k,close){const t=layers[layers.length-1];if(t&&t.k==k){t.close=close;return}layers.push({k,close});try{history.pushState({mtgr:1},'')}catch(e){}}
+function swapTop(k,close){if(!layers.length){enter(k,close);return}layers[layers.length-1]={k,close};try{history.replaceState({mtgr:1},'')}catch(e){}}
+function back(fb){if(layers.length)history.back();else if(fb)fb()}
+function flush(){const n=layers.length;if(!n)return;while(layers.length){const l=layers.pop();try{l.close()}catch(e){}}skipPop++;try{history.go(-n)}catch(e){}}
+window.addEventListener('popstate',()=>{if(skipPop){skipPop--;return}const l=layers.pop();if(l)try{l.close()}catch(e){}});
+const topLayer=()=>(layers[layers.length-1]||{}).k;
+document.addEventListener('keydown',e=>{
+ if(e.key=='Escape'&&layers.length){e.preventDefault();back();return}
+ if(topLayer()!='vw'||/^(INPUT|TEXTAREA|SELECT)$/.test((e.target||{}).tagName||''))return;
+ if(e.key=='ArrowRight'){e.preventDefault();vNext()}else if(e.key=='ArrowLeft'){e.preventDefault();vPrev()}});
+function tab(n){['v1','v2','v3','v4'].forEach((v,i)=>$('#'+v).hidden=n!=i+1);[1,2,3].forEach(i=>$('#t'+i).className=n==i?'on':'');if(n<4)curTab=n;window.scrollTo(0,0)}
+$('nav').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;flush();const n=+b.id.slice(1);tab(n);if(n==2)drawDecks();if(n==3)drawHist()});
+// ---------- bottom sheets ----------
+function openSheet(html,k){k=k||'sh';const s=$('#'+k),b=$('#'+k+'b');b.innerHTML=html;b.scrollTop=0;if(s.hidden){s.hidden=false;syncNosc();enter(k,()=>closeSheetDOM(k))}return b}
+function closeSheetDOM(k){$('#'+k).hidden=true;$('#'+k+'b').innerHTML='';$('#'+k+'b').onclick=null;syncNosc()}
+const closeSheet=k=>back(()=>closeSheetDOM(k||'sh'));
+const sheetHead=t=>'<div class="dh"><h2>'+t+'</h2><button type="button" data-close aria-label="Close">×</button></div>';
+['sh','sh2'].forEach(k=>$('#'+k).addEventListener('click',e=>{if(e.target.id==k||e.target.closest('[data-close]'))closeSheet(k)}));
+// ---------- themes (same list as TickedOff) ----------
+const TH=[
+ {id:'auto',n:'Auto (device)',g:'Basic'},
+ {id:'light',n:'Light',g:'Basic',bg:'#f0f0f1',card:'#ffffff',ink:'#1c1c1e',mut:'#636366',line:'#dcdcde',acc:'#2a2a2c'},
+ {id:'default',n:'Default',g:'Basic',dk:1,bg:'#141414',card:'#1e1e1e',ink:'#efefef',mut:'#9a9a9a',line:'#333333',acc:'#bff0d8'},
+ {id:'dark',n:'Dark',g:'Basic',dk:1,bg:'#141414',card:'#1e1e1e',ink:'#efefef',mut:'#9a9a9a',line:'#333333',acc:'#efefef'},
+ {id:'navy',n:'Midnight Navy',g:'HIGH CONTRAST',dk:1,bg:'#000814',card:'#00122b',ink:'#ffffff',mut:'#cddcf2',line:'#5b82b8',acc:'#6fb1ff'},
+ {id:'steel',n:'Steel Blue',g:'HIGH CONTRAST',bg:'#f4f7fa',card:'#ffffff',ink:'#000000',mut:'#2b3c4d',line:'#4a5f75',acc:'#0b3d66'},
+ {id:'forest',n:'Forest',g:'HIGH CONTRAST',dk:1,bg:'#000d05',card:'#03170b',ink:'#ffffff',mut:'#d2ebdb',line:'#4f9a6b',acc:'#3ddc84'},
+ {id:'graphite',n:'Graphite Amber',g:'HIGH CONTRAST',dk:1,bg:'#000000',card:'#0d0d0d',ink:'#ffffff',mut:'#d4d4d4',line:'#6e6e6e',acc:'#ffb52e'},
+ {id:'ocean',n:'Deep Ocean',g:'HIGH CONTRAST',dk:1,bg:'#00090d',card:'#021a22',ink:'#ffffff',mut:'#d0ecf2',line:'#3fa7bd',acc:'#2fe0f5'},
+ {id:'rose',n:'Rose Quartz',g:'LOW CONTRAST',bg:'#fdf0f3',card:'#fffafb',ink:'#7a4a5a',mut:'#a8808d',line:'#f3d9e0',acc:'#e8a0b4'},
+ {id:'lav',n:'Lavender Mist',g:'LOW CONTRAST',bg:'#f4f1fc',card:'#fbfaff',ink:'#6a5f8a',mut:'#8d84ad',line:'#e3ddf4',acc:'#b8a5ee'},
+ {id:'peach',n:'Peach Blush',g:'LOW CONTRAST',bg:'#fff4ee',card:'#fffaf7',ink:'#8a5f4e',mut:'#a98777',line:'#f8e0d2',acc:'#f5b79e'},
+ {id:'orchid',n:'Orchid Haze',g:'LOW CONTRAST',bg:'#f8effb',card:'#fdf9fe',ink:'#7d5a8a',mut:'#9f85ad',line:'#ecdcf3',acc:'#dba6ec'},
+ {id:'berry',n:'Berry Sorbet',g:'LOW CONTRAST',bg:'#fdeff5',card:'#fff9fc',ink:'#8a5470',mut:'#a8808f',line:'#f6d9e6',acc:'#f2a3c4'},
+ {id:'spring',n:'Spring Meadow',g:'Seasonal',bg:'#eef7ea',card:'#ffffff',ink:'#1f3320',mut:'#5f7a5c',line:'#d3e8cc',acc:'#3f8f3a'},
+ {id:'summer',n:'Summer Sunshine',g:'Seasonal',bg:'#fff8e1',card:'#ffffff',ink:'#3b2f0b',mut:'#8a7440',line:'#f3e3a8',acc:'#c25e00'},
+ {id:'autumn',n:'Autumn Harvest',g:'Seasonal',dk:1,bg:'#1f1510',card:'#2b1d15',ink:'#f5e6d8',mut:'#b89a82',line:'#43301f',acc:'#e07a2f'},
+ {id:'winter',n:'Winter Frost',g:'Seasonal',bg:'#eef4fa',card:'#ffffff',ink:'#14283d',mut:'#5a7289',line:'#cfdeeb',acc:'#2f7fb8'},
+ {id:'halloween',n:'Halloween',g:'Seasonal',dk:1,bg:'#120d18',card:'#1d1626',ink:'#f3ece6',mut:'#a898b5',line:'#33283f',acc:'#ff7a18'},
+ {id:'holiday',n:'Holiday',g:'Seasonal',dk:1,bg:'#0f1f17',card:'#172b20',ink:'#f1efe6',mut:'#9fb8a6',line:'#264034',acc:'#d63a3a'}];
+const THV=['--bg','--card','--ink','--mut','--line','--acc','--accink','--ok','--warn','--bad','--okbg','--warnbg','--badbg','--hr','--hy'];
+const h2r=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const r2h=a=>'#'+a.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
+const mix=(a,b,t)=>{const x=h2r(a),y=h2r(b);return r2h(x.map((v,i)=>v+(y[i]-v)*t))};
+const lum=h=>{const[r,g,b]=h2r(h).map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*r+.7152*g+.0722*b};
+const inkOn=h=>lum(h)>.4?'#101820':'#ffffff';
+function themeVars(t){
+ let o;
+ if(t.id=='custom'){const dk=lum(t.bg)<.3,ink=mix(t.bg,dk?'#ffffff':'#000000',.92);
+  o={bg:t.bg,card:dk?mix(t.bg,'#ffffff',.07):mix(t.bg,'#ffffff',.65),ink,mut:mix(t.bg,ink,.58),line:mix(t.bg,ink,.16),acc:t.acc,dk};}
+ else o=t;
+ const S=o.dk?{ok:'#5fd394',warn:'#f0bd4a',bad:'#ff7d72',okbg:'#12362a',warnbg:'#3b2f10',badbg:'#431a17',hr:'#e5483d',hy:'#f2c230'}:{ok:'#157a4a',warn:'#a56a00',bad:'#c0322a',okbg:'#dcf3e6',warnbg:'#fff0cc',badbg:'#fbdcd8',hr:'#d62f25',hy:'#ffd23f'};
+ return{'--bg':o.bg,'--card':o.card,'--ink':o.ink,'--mut':o.mut,'--line':o.line,'--acc':o.acc,'--accink':inkOn(o.acc),'--ok':S.ok,'--warn':S.warn,'--bad':S.bad,'--okbg':S.okbg,'--warnbg':S.warnbg,'--badbg':S.badbg,'--hr':S.hr,'--hy':S.hy,dk:!!o.dk};
+}
+function applyTheme(t){
+ const root=document.documentElement,meta=document.querySelector('meta[name=theme-color]');
+ THV.forEach(v=>root.style.removeProperty(v));root.style.removeProperty('color-scheme');
+ if(!t||t.id=='auto'){meta.content=matchMedia('(prefers-color-scheme:dark)').matches?'#141414':'#f0f0f1';return}
+ const v=themeVars(t);THV.forEach(k=>root.style.setProperty(k,v[k]));root.style.colorScheme=v.dk?'dark':'light';meta.content=v['--bg'];
+}
+function cleanTheme(t){
+ if(!t||typeof t!='object')return{id:'default'};
+ if(t.id=='custom')return hex.test(t.bg)&&hex.test(t.acc)?{id:'custom',bg:t.bg.toLowerCase(),acc:t.acc.toLowerCase()}:{id:'default'};
+ return TH.some(x=>x.id==t.id)?{id:t.id}:{id:'default'};
+}
+let theme=cleanTheme(ls.get('mtgr_theme',null));
+function setTheme(t){theme=cleanTheme(t);ls.set('mtgr_theme',theme);applyTheme(theme.id=='custom'?theme:TH.find(x=>x.id==theme.id));drawThemes()}
+function drawThemes(){
+ const groups=['Basic','HIGH CONTRAST','LOW CONTRAST','Seasonal'];
+ $('#thl').innerHTML=groups.map(g=>'<p class="aisle" style="margin:12px 0 6px">'+g+'</p><div class="swg">'+TH.filter(x=>x.g==g).map(x=>{
+  const sw=x.id=='auto'?'<span class="dots"><i style="background:#f0f0f1"></i><i style="background:#2a2a2c"></i><i style="background:#141414"></i></span>':'<span class="dots"><i style="background:'+x.bg+'"></i><i style="background:'+x.card+'"></i><i style="background:'+x.acc+'"></i></span>';
+  return'<button class="sw" data-t="'+x.id+'" aria-pressed="'+(theme.id==x.id)+'">'+sw+'<span>'+esc(x.n)+'</span></button>'}).join('')+'</div>').join('');
+ if(theme.id=='custom'){$('#cbg').value=theme.bg;$('#cac').value=theme.acc}
+}
+$('#thl').onclick=e=>{const b=e.target.closest('[data-t]');if(b)setTheme({id:b.dataset.t})};
+$('#cbg').oninput=$('#cac').oninput=()=>setTheme({id:'custom',bg:$('#cbg').value,acc:$('#cac').value});
+$('#crs').onclick=()=>setTheme({id:'auto'});
+applyTheme(theme.id=='custom'?theme:TH.find(x=>x.id==theme.id));drawThemes();
+// ---------- menu drawer ----------
+let drawerFrom=null;
+function openDrawer(){drawerFrom=document.activeElement;$('#scrim').hidden=false;$('#drawer').hidden=false;$('#hb').setAttribute('aria-expanded','true');$('#dclose').focus();enter('drawer',closeDrawerDOM)}
+const closeDrawer=()=>back(closeDrawerDOM);
+function closeDrawerDOM(){$('#scrim').hidden=true;$('#drawer').hidden=true;$('#hb').setAttribute('aria-expanded','false');if(drawerFrom&&drawerFrom.focus)drawerFrom.focus()}
+$('#hb').onclick=()=>$('#drawer').hidden?openDrawer():closeDrawer();
+$('#dclose').onclick=closeDrawer;$('#scrim').onclick=closeDrawer;
+$('#mbk').onclick=()=>{closeDrawerDOM();swapTop('v4',()=>tab(curTab));tab(4);$('#bk').hidden=true};
+$('#bkback').onclick=()=>back(()=>tab(1));
+function drawSettings(){$('#srand').checked=cfg.rand;$('#srandt').textContent=cfg.rand?'On: the dice shows one random card from your pool.':'Off: Search shows every matching card, like a normal card search.'}
+$('#srand').onchange=()=>{cfg.rand=$('#srand').checked;saveCfg();drawSettings();drawMode();toast(cfg.rand?'Randomizer on. Tap the dice to roll.':'Randomizer off. Search shows every matching card.')};
+// ---------- Scryfall ----------
+// Scryfall asks apps to space out requests, so every call goes through one queue.
+async function fetchT(url,opt,ms){const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||20000);try{return await fetch(url,Object.assign({signal:c.signal},opt))}finally{clearTimeout(t)}}
+let apiQ=Promise.resolve(),apiLast=0;
+function api(path,opt){
+ const run=async()=>{const w=apiLast+(path.startsWith('/cards/')?500:120)-Date.now();if(w>0)await sleep(w);apiLast=Date.now();return apiGet(path,opt,0)};
+ const p=apiQ.then(run,run);apiQ=p.catch(()=>{});return p}
+async function apiGet(path,opt,tries){
+ const o=Object.assign({},opt);o.headers=Object.assign({Accept:'application/json'},o.headers);
+ const r=await fetchT(API+path,o);
+ if(r.status==429&&!tries){await sleep(((+r.headers.get('Retry-After'))||3)*1000);apiLast=Date.now();return apiGet(path,opt,1)}
+ let j=null;try{j=await r.json()}catch(e){}
+ if(!r.ok){const e=new Error(j&&j.details||'HTTP '+r.status);e.status=r.status;throw e}
+ return j}
+function errText(e){
+ const s=e&&e.status;
+ if(s==404)return'No cards match this pool. Check the spelling, or remove a filter.';
+ if(s==400||s==422)return'Scryfall couldn’t understand that search'+(e.message?': '+e.message:'.');
+ if(s==429)return'Scryfall asked us to slow down. Wait a few seconds and try again.';
+ if(!navigator.onLine)return'You’re offline. Connect to the internet and try again.';
+ if(s>=500)return'Scryfall isn’t responding right now (usually a problem on their side). Try again in a moment.';
+ return'Couldn’t reach Scryfall. Check your connection and try again.'}
+// ---------- what you can search by ----------
+const KINDS=[
+ {k:'type',n:'Type',s:'Type',lab:'Choose a type',ph:'e.g. Zombie, Angel, Instant',hint:'Card types, creature types and every other subtype.'},
+ {k:'otag',n:'Function (oracle tag)',s:'Function',lab:'Choose a function',ph:'e.g. removal, ramp, draw',hint:'What a card does, tagged by the Scryfall community (otag). Example: removal, ramp, tutor.'},
+ {k:'atag',n:'Art (art tag)',s:'Art',lab:'Choose an art tag',ph:'e.g. dragon, moon, cat',hint:'What is in the artwork, tagged by the Scryfall community.'},
+ {k:'kw',n:'Keyword',s:'Keyword',lab:'Choose a keyword',ph:'e.g. Flying, Landfall',hint:'Keyword abilities, keyword actions and ability words.'},
+ {k:'color',n:'Color',s:'Color',lab:'Choose a color',ph:'e.g. Red, Azorius',hint:'Single colors include multicolored cards. Mono, guild and shard picks mean exactly those colors.'},
+ {k:'mv',n:'Mana value',s:'Mana value',lab:'Choose a mana value',ph:'e.g. 3 or 7+',hint:'Total mana cost. Type 7+ for seven or more.'},
+ {k:'rarity',n:'Rarity',s:'Rarity',lab:'Choose a rarity',ph:'e.g. Mythic rare'},
+ {k:'set',n:'Set',s:'Set',lab:'Choose a set',ph:'e.g. Dominaria or DOM',hint:'Newest sets first. You can type the set name or its code.'},
+ {k:'format',n:'Format (legal in)',s:'Legal in',lab:'Choose a format',ph:'e.g. Commander'},
+ {k:'artist',n:'Artist',s:'Artist',lab:'Choose an artist',ph:'e.g. Rebecca Guay'},
+ {k:'name',n:'Card name',s:'Name',lab:'Part of a card name',ph:'e.g. bolt',nolist:1},
+ {k:'text',n:'Rules text',s:'Text',lab:'Words in the rules text',ph:'e.g. draw a card',nolist:1},
+ {k:'raw',n:'Scryfall search (advanced)',s:'Search',lab:'Your own Scryfall search',ph:'e.g. t:dragon pow>=5',hint:'Anything from the Scryfall search syntax guide (scryfall.com/docs/syntax).',nolist:1}];
+const KBY={};KINDS.forEach(x=>KBY[x.k]=x);
+const isTag=k=>k=='otag'||k=='atag';
+const COLORS=[['White','c:w','Colors'],['Blue','c:u','Colors'],['Black','c:b','Colors'],['Red','c:r','Colors'],['Green','c:g','Colors'],['Colorless','c=c','Colors'],['Multicolored','c:m','Colors'],
+ ['Mono-white','c=w','Mono-colored'],['Mono-blue','c=u','Mono-colored'],['Mono-black','c=b','Mono-colored'],['Mono-red','c=r','Mono-colored'],['Mono-green','c=g','Mono-colored'],
+ ['Azorius (white-blue)','c=wu','Two colors'],['Dimir (blue-black)','c=ub','Two colors'],['Rakdos (black-red)','c=br','Two colors'],['Gruul (red-green)','c=rg','Two colors'],['Selesnya (green-white)','c=gw','Two colors'],['Orzhov (white-black)','c=wb','Two colors'],['Izzet (blue-red)','c=ur','Two colors'],['Golgari (black-green)','c=bg','Two colors'],['Boros (red-white)','c=rw','Two colors'],['Simic (green-blue)','c=gu','Two colors'],
+ ['Esper (white-blue-black)','c=wub','Three colors'],['Grixis (blue-black-red)','c=ubr','Three colors'],['Jund (black-red-green)','c=brg','Three colors'],['Naya (red-green-white)','c=rgw','Three colors'],['Bant (green-white-blue)','c=gwu','Three colors'],['Abzan (white-black-green)','c=wbg','Three colors'],['Jeskai (blue-red-white)','c=urw','Three colors'],['Sultai (black-green-blue)','c=bgu','Three colors'],['Mardu (red-white-black)','c=rwb','Three colors'],['Temur (green-blue-red)','c=gur','Three colors'],
+ ['Five colors','c=wubrg','Five colors']];
+const FORMATS=[['Standard','standard'],['Pioneer','pioneer'],['Modern','modern'],['Legacy','legacy'],['Vintage','vintage'],['Commander','commander'],['Pauper','pauper'],['Pauper Commander','paupercommander'],['Brawl','brawl'],['Standard Brawl','standardbrawl'],['Historic','historic'],['Timeless','timeless'],['Alchemy','alchemy'],['Oathbreaker','oathbreaker'],['Penny Dreadful','penny'],['Premodern','premodern'],['Old School','oldschool'],['PreDH','predh'],['Duel Commander','duel'],['Gladiator','gladiator'],['Future Standard','future']];
+const LISTS={
+ color:COLORS.map(([v,q,g])=>({v,q,g})),
+ rarity:[['Common','common'],['Uncommon','uncommon'],['Rare','rare'],['Mythic rare','mythic'],['Special','special'],['Bonus','bonus']].map(([v,r])=>({v,q:'r:'+r})),
+ format:FORMATS.map(([v,f])=>({v,q:'f:'+f})),
+ mv:[...Array(10).keys()].map(n=>({v:String(n),q:'mv='+n})).concat([{v:'10+',q:'mv>=10'}])};
+const CATS={type:[['Card types','card-types'],['Supertypes','supertypes'],['Creature types','creature-types'],['Planeswalker types','planeswalker-types'],['Land types','land-types'],['Artifact types','artifact-types'],['Enchantment types','enchantment-types'],['Spell types','spell-types'],['Battle types','battle-types']],
+ kw:[['Keyword abilities','keyword-abilities'],['Keyword actions','keyword-actions'],['Ability words','ability-words']],artist:[['Artists','artist-names']]};
+const QUICK={type:['Creature','Instant','Sorcery','Artifact','Enchantment','Land','Planeswalker','Legendary','Zombie','Angel','Dragon','Goblin','Elf','Wizard'],
+ otag:['removal','ramp','draw','tutor','counterspell','sweeper','burn','lifegain','mill','recursion','reanimate','sacrifice-outlet','bounce','anthem','mana-rock','cantrip'],
+ atag:['dragon','cat','dog','angel','moon','forest','skull','fire','sword','ocean','castle','owl','mushroom','skeleton'],
+ kw:['Flying','Trample','Deathtouch','Lifelink','Haste','Vigilance','Flash','Ward','Landfall','Scry'],
+ color:['White','Blue','Black','Red','Green','Colorless','Multicolored'],mv:['0','1','2','3','4','5','6','7+'],
+ rarity:['Common','Uncommon','Rare','Mythic rare'],format:['Commander','Standard','Pioneer','Modern','Legacy','Pauper']};
+// Lists that come from Scryfall are kept on the device for two weeks. Both tag lists come from tags.json next to this page.
+const LOADING={},LOADERR={},lkey=k=>isTag(k)?'tags':k;
+function loadList(k){
+ if(LISTS[k])return Promise.resolve(LISTS[k]);
+ const lk=lkey(k);
+ if(!LOADING[lk])LOADING[lk]=fetchList(k).finally(()=>{delete LOADING[lk]});
+ return LOADING[lk].then(()=>LISTS[k])}
+async function fetchList(k){
+ if(isTag(k)){const r=await fetchT('tags.json',{},30000);if(!r.ok)throw new Error('tags.json '+r.status);const j=await r.json();
+  for(const[key,kk]of[['o','otag'],['a','atag']])LISTS[kk]=String(j[key]||'').split('|').filter(Boolean).map(x=>{const i=x.lastIndexOf('~');return{v:x.slice(0,i),c:+x.slice(i+1)}});
+  return}
+ const c=ls.get('mtgr_cat_'+k,null);
+ if(c&&c.v==1&&Array.isArray(c.d)&&Date.now()-c.t<14*864e5){LISTS[k]=c.d;return}
+ try{let d=[];
+  if(k=='set'){const j=await api('/sets');d=(j.data||[]).filter(s=>s.card_count>0&&!['token','memorabilia','minigame'].includes(s.set_type)).sort((a,b)=>String(b.released_at||'').localeCompare(String(a.released_at||''))).map(s=>({v:s.name,q:'set:'+s.code,s:s.code.toUpperCase()+(s.released_at?' · '+s.released_at.slice(0,4):'')}))}
+  else for(const[g,cat]of CATS[k]){const j=await api('/catalog/'+cat);(j.data||[]).forEach(v=>d.push({v,g}))}
+  ls.set('mtgr_cat_'+k,{v:1,t:Date.now(),d});LISTS[k]=d}
+ catch(e){if(c&&Array.isArray(c.d)){LISTS[k]=c.d;return}throw e}}
+const slug=v=>String(v).toLowerCase().trim().replace(/[\s_]+/g,'-').replace(/[^a-z0-9-]/g,'');
+const qq=v=>'"'+String(v).replace(/["\\]/g,'')+'"';
+const label=(k,it)=>k=='set'&&it.s?it.v+' ('+it.s.split(' · ')[0]+')':it.v;
+// Best matches first: exact, starts with, a word starts with, anywhere (set codes count too),
+// then entries that contain every typed word in any order ("card draw" finds "draw-cards").
+function matchList(list,q,k,lim){
+ const tag=isTag(k),n=tag?slug(q):q.trim().toLowerCase();
+ if(!n)return lim?list.slice(0,lim):list;
+ const toks=n.split(tag?'-':/\s+/).filter(Boolean),out=[[],[],[],[],[]];
+ for(const it of list){const v=tag?it.v:it.v.toLowerCase(),alt=it.s?it.s.toLowerCase():'';let r=-1;
+  if(v==n||alt.split(' · ')[0]==n)r=0;else if(v.startsWith(n))r=1;else if(v.includes(tag?'-'+n:' '+n)||v.includes('-'+n))r=2;else if(v.includes(n)||alt.includes(n))r=3;
+  else if(toks.length>1&&toks.every(t=>v.includes(t)))r=4;
+  if(r>=0)out[r].push(it)}
+ const all=out.flat();return lim?all.slice(0,lim):all}
+// Turns what was typed or picked into a piece of a Scryfall search.
+function resolve(k,v){
+ v=String(v||'').trim();if(!v)return null;
+ const L=LISTS[k],lv=v.toLowerCase(),hit=L&&(L.find(x=>x.v.toLowerCase()==lv)||L.find(x=>x.s&&x.s.split(' · ')[0].toLowerCase()==lv));
+ switch(k){
+  case'type':return{v,q:'t:'+qq(v)};
+  case'otag':case'atag':{const s=slug(v);return s?{v:s,q:k+':'+s}:{err:'Tags use letters, numbers and dashes, like card-advantage.'}}
+  case'kw':return{v,q:'keyword:'+qq(v)};
+  case'artist':return{v,q:'a:'+qq(v)};
+  case'name':return{v,q:qq(v)};
+  case'text':return{v,q:'o:'+qq(v)};
+  case'raw':return{v,q:'('+v+')'};
+  case'mv':{const m=v.match(/^(\d{1,2})\s*(\+)?$/);return m?{v:m[1]+(m[2]||''),q:'mv'+(m[2]?'>=':'=')+m[1]}:{err:'Type a number, like 3 or 7+.'}}
+  default:if(hit)return{v:hit.v,q:hit.q};
+   if(k=='set'&&!L&&/^[a-z0-9]{2,6}$/i.test(v))return{v:v.toUpperCase(),q:'set:'+v.toLowerCase()};   // set list unavailable: trust a code
+   return{err:'Pick a '+KBY[k].s.toLowerCase()+' from the suggestions or the ▾ All list.'}}}
+// ---------- your pool (what the dice rolls from) ----------
+// crit = filters added with "+ Add another filter"; k/v = the Search by box; mem = the last value typed for each Search by choice.
+function cleanPool(p){p=p&&typeof p=='object'?p:{};
+ const crit=Array.isArray(p.crit)?p.crit.filter(c=>c&&KBY[c.k]&&typeof c.v=='string'&&typeof c.q=='string').slice(0,12).map(c=>({k:c.k,v:c.v.slice(0,200),q:c.q.slice(0,400),neg:c.neg===true})):[];
+ const mem={};if(p.mem&&typeof p.mem=='object')Object.keys(p.mem).forEach(k=>{if(KBY[k]&&typeof p.mem[k]=='string')mem[k]=p.mem[k].slice(0,200)});
+ return{crit,k:KBY[p.k]?p.k:'type',v:typeof p.v=='string'?p.v.slice(0,200):'',mem}}
+let pool=cleanPool(ls.get('mtgr_pool',null));
+const savePool=()=>ls.set('mtgr_pool',pool);
+function curCrit(){const r=resolve(pool.k,pool.v);return r&&!r.err?{k:pool.k,v:r.v,q:r.q}:null}
+function buildQ(){const p=pool.crit.map(c=>(c.neg?'-':'')+c.q),c=curCrit();if(c)p.push(c.q);return p.join(' ')}
+function fullQ(){let q=buildQ();if(cfg.extras)q=(q||'mv>=0')+' include:extras';return q}
+function descPool(){const p=pool.crit.map(c=>(c.neg?'Not ':'')+KBY[c.k].s+': '+c.v),c=curCrit();if(c)p.push(KBY[c.k].s+': '+c.v);return p.join(' + ')||'Any card'}
+function drawKinds(){$('#kind').innerHTML=KINDS.map(x=>'<option value="'+x.k+'">'+esc(x.n)+'</option>').join('');$('#kind').value=pool.k}
+function drawVal(){const K=KBY[pool.k];$('#vlab').textContent=K.lab;$('#val').placeholder=K.ph;if($('#val').value!==pool.v)$('#val').value=pool.v;$('#khint').textContent=K.hint||'';$('#khint').hidden=!K.hint;$('#combo').classList.toggle('nol',!!K.nolist);$('#vclr').hidden=!pool.v;$('#verr').hidden=true}
+function drawSug(){
+ const k=pool.k,box=$('#sug');if(KBY[k].nolist){box.innerHTML='';return}
+ const L=LISTS[k],v=pool.v.trim();let items=[],note='';
+ if(!v)items=(QUICK[k]||[]).map(x=>(L&&L.find(i=>i.v==x))||{v:x}).concat(k=='set'&&L?L.slice(0,8):[]);
+ else if(L){items=matchList(L,v,k,9);if(items.length&&items[0].v.toLowerCase()==v.toLowerCase())items=[];else if(!items.length)note='Nothing in the list matches. '+(['set','color','rarity','format'].includes(k)?'Check the spelling.':'You can still roll with what you typed.')}
+ else if(LOADING[lkey(k)])note='Loading suggestions…';
+ else if(LOADERR[lkey(k)])note='Couldn’t load suggestions'+(navigator.onLine?'':' (you’re offline)')+'. You can still type a value.';
+ box.innerHTML=items.map(it=>'<button type="button" data-v="'+esc(it.v)+'">'+esc(label(k,it))+(it.c?'<small>'+fmtN(it.c)+'</small>':'')+'</button>').join('')+(note?'<p class="legend">'+esc(note)+'</p>':'')}
+function drawPool(){
+ $('#pool').innerHTML=pool.crit.map((c,i)=>'<span class="pc'+(c.neg?' neg':'')+'"><button type="button" class="pct" data-i="'+i+'">'+(c.neg?'Not ':'')+esc(KBY[c.k].s)+': '+esc(c.v)+'</button><button type="button" class="pcx" data-x="'+i+'" aria-label="Remove '+esc(KBY[c.k].s+' '+c.v)+'">×</button></span>').join('');
+ $('#poolh').hidden=!pool.crit.length}
+function drawQ(){
+ const q=buildQ(),u=cfg.uniq!='cards'||cfg.extras;
+ $('#qp').innerHTML=q?'Scryfall search: <code>'+esc(fullQ())+'</code> · <a href="https://scryfall.com/search?q='+encodeURIComponent(fullQ())+(cfg.uniq!='cards'?'&amp;unique='+cfg.uniq:'')+'" target="_blank" rel="noopener">open ↗</a>':(cfg.rand?'No filters yet, so the dice can land on any card'+(u?' (with your printing options)':'')+'.':'Pick at least one filter, then tap Search.')}
+function drawMode(){const r=cfg.rand;$('#dicew').hidden=!r;$('#sbtn').hidden=r;$('#t1').textContent=r?'Randomize':'Search';$('#res').hidden=r||!S.cards.length;$('#msg').hidden=true;drawQ()}
+function drawOpts(){[...$('#uniq').children].forEach(b=>b.className=b.dataset.u==cfg.uniq?'on':'');$('#extras').checked=cfg.extras}
+function useList(k){const lk=lkey(k);if(KBY[k].nolist||LISTS[k]||LOADING[lk]||Date.now()-(LOADERR[lk]||0)<30000)return;
+ const p=loadList(k);drawSug();p.then(()=>{delete LOADERR[lk];if(pool.k==k)drawSug()},()=>{LOADERR[lk]=Date.now();if(pool.k==k)drawSug()})}
+function setVal(v){pool.v=String(v).slice(0,200);savePool();drawVal();drawSug();drawQ()}
+$('#kind').onchange=()=>{const k=$('#kind').value;pool.mem[pool.k]=pool.v;pool.k=k;pool.v=pool.mem[k]||'';savePool();drawVal();drawSug();drawQ();useList(k)};
+$('#val').oninput=()=>{pool.v=$('#val').value.slice(0,200);savePool();$('#vclr').hidden=!pool.v;$('#verr').hidden=true;$('#msg').hidden=true;drawSug();drawQ();useList(pool.k)};
+$('#val').onfocus=()=>useList(pool.k);
+$('#val').onkeydown=e=>{if(e.key=='Enter'){e.preventDefault();$('#val').blur();go()}};
+$('#vclr').onclick=()=>{setVal('');$('#val').focus()};
+$('#sug').onclick=e=>{const b=e.target.closest('[data-v]');if(b)setVal(b.dataset.v)};
+$('#pool').onclick=e=>{const x=e.target.closest('[data-x]'),t=e.target.closest('[data-i]');
+ if(x)pool.crit.splice(+x.dataset.x,1);else if(t){const c=pool.crit[+t.dataset.i];c.neg=!c.neg}else return;
+ savePool();drawPool();drawQ()};
+$('#addc').onclick=async()=>{
+ if(!pool.v.trim()){toast('Type or pick something first, then add it.');$('#val').focus();return}
+ if(!(await checkCur()))return;
+ const c=curCrit();if(pool.crit.length>=12){toast('That’s a lot of filters! Remove one first.');return}
+ if(!pool.crit.some(x=>x.q==c.q))pool.crit.push(Object.assign(c,{neg:false}));
+ pool.v='';savePool();drawVal();drawPool();drawSug();drawQ();toast('Filter added. Pick another one, or roll.')};
+$('#uniq').onclick=e=>{const b=e.target.closest('[data-u]');if(!b)return;cfg.uniq=b.dataset.u;saveCfg();drawOpts();resetSearch();drawQ()};
+$('#extras').onchange=()=>{cfg.extras=$('#extras').checked;saveCfg();resetSearch();drawQ()};
+// Checks what is typed in the box. Sets can only be checked once their list has loaded.
+async function checkCur(){
+ if(pool.v.trim()&&pool.k=='set'&&!LISTS.set)try{await loadList('set')}catch(e){}
+ const r=resolve(pool.k,pool.v);if(r&&r.err){$('#verr').textContent=r.err;$('#verr').hidden=false;return false}return true}
+function showMsg(t){const m=$('#msg');m.textContent=t;m.hidden=false;m.scrollIntoView({behavior:'smooth',block:'nearest'})}
+const go=()=>cfg.rand?roll(false):runSearch(false);
+$('#roll').onclick=()=>roll(false);$('#sbtn').onclick=()=>runSearch(false);
+// ---------- rolling ----------
+// "Each card once" asks Scryfall for one random card (tiny download). The other printing options
+// pick a random spot in the full search results instead, fetching only the page that spot is on.
+let busy=false;const RECENT={},POOLS={};
+function poolP(q){const key=q+'|'+cfg.uniq+'|'+cfg.order;let P=POOLS[key];if(!P||Date.now()-P.t>30*6e4)P=POOLS[key]={t:Date.now(),total:null,more:false,pages:{},recent:[],warn:null};return P}
+async function getPage(q,n){
+ const P=poolP(q);if(P.pages[n])return P.pages[n];const o=ORD();
+ try{const j=await api('/cards/search?q='+encodeURIComponent(q)+'&unique='+cfg.uniq+'&order='+o[0]+'&dir='+o[2]+'&page='+n);
+  P.total=j.total_cards||0;P.more=!!j.has_more;P.warn=j.warnings||null;return P.pages[n]=(j.data||[]).map(slim)}
+ catch(e){if(e.status==404&&n==1){P.total=0;P.more=false;return P.pages[1]=[]}throw e}}
+async function pickRandom(){
+ const q=fullQ();
+ if(cfg.uniq=='cards'){const rec=RECENT[q]||(RECENT[q]=[]);let c;
+  for(let t=0;t<2;t++){c=slim(await api('/cards/random'+(q?'?q='+encodeURIComponent(q):'')));if(!rec.includes(c.id))break}
+  rec.push(c.id);if(rec.length>12)rec.shift();return c}
+ const pq=q||'mv>=0',P=poolP(pq);if(P.total==null)await getPage(pq,1);
+ if(!P.total){const e=new Error('no match');e.status=404;throw e}
+ const keep=Math.min(12,Math.floor(P.total/2));let i,t=0;
+ do i=Math.floor(Math.random()*P.total);while(P.recent.includes(i)&&++t<25);
+ P.recent.push(i);if(P.recent.length>keep)P.recent.splice(0,P.recent.length-keep);
+ const arr=await getPage(pq,Math.floor(i/PAGE)+1);
+ if(!arr.length){const e=new Error('no match');e.status=404;throw e}
+ return arr[i%PAGE]||arr[Math.floor(Math.random()*arr.length)]}
+async function roll(fromViewer){
+ if(busy)return;if(!(await checkCur()))return;
+ busy=true;dice(true);$('#msg').hidden=true;
+ try{const c=await pickRandom();addHist(c,descPool());
+  if(fromViewer&&!$('#vw').hidden&&V.src=='roll'){V.list.push(c);if(V.list.length>50)V.list.shift();V.i=V.list.length-1;V.face=0;drawViewer()}
+  else openViewer([c],0,'roll')}
+ catch(e){if(!$('#vw').hidden)toast(errText(e));else showMsg(errText(e))}
+ finally{busy=false;dice(false)}}
+// ---------- search mode (randomizer off) ----------
+const emptyS=()=>({key:'',q:'',cards:[],n:0,total:0,more:false,warn:null});
+let S=emptyS();
+function resetSearch(){S=emptyS();$('#res').hidden=true;$('#res').innerHTML=''}
+async function runSearch(more){
+ if(busy)return;let q;
+ if(more&&S.q)q=S.q;   // "Show more" keeps the original search even if the filters were edited since
+ else{if(!(await checkCur()))return;if(!buildQ()){showMsg('Pick at least one filter to search. Or turn the randomizer back on in the menu to roll from every card.');return}q=fullQ()}
+ const key=q+'|'+cfg.uniq+'|'+cfg.order;if(!more||S.key!=key)S=Object.assign(emptyS(),{key,q});
+ busy=true;$('#sbtn').disabled=true;$('#msg').hidden=true;
+ if(!more){$('#res').hidden=false;$('#res').innerHTML='<p class="legend">Searching…</p>'}else if($('#smore'))$('#smore').textContent='Loading…';
+ try{const arr=await getPage(q,S.n+1),P=poolP(q);S.n++;S.cards=S.cards.concat(arr);S.total=P.total;S.more=P.more;S.warn=P.warn;
+  if(!S.total){const e=new Error('no match');e.status=404;throw e}drawResults()}
+ catch(e){if(!more)$('#res').hidden=true;else drawResults();showMsg(errText(e))}
+ finally{busy=false;$('#sbtn').disabled=false}}
+function drawResults(){
+ $('#res').innerHTML='<div class="rhead"><b>'+fmtN(S.total)+' card'+(S.total==1?'':'s')+'</b><select id="sord" aria-label="Sort by">'+ORDERS.map(o=>'<option value="'+o[0]+'"'+(o[0]==cfg.order?' selected':'')+'>'+esc(o[1])+'</option>').join('')+'</select></div>'
+  +(S.warn?'<p class="legend">'+esc(S.warn.join(' '))+'</p>':'')
+  +'<div class="rgrid">'+S.cards.map((c,i)=>'<button type="button" class="gc" data-i="'+i+'" aria-label="'+esc(c.n)+'">'+(c.im?'<img loading="lazy" src="'+esc(imgUrl(c,'normal'))+'" alt="">':'<span class="noim">'+esc(c.n)+'</span>')+'</button>').join('')+'</div>'
+  +(S.more?'<button class="pri" id="smore" type="button">Show more</button>':'');$('#res').hidden=false}
+$('#res').onclick=e=>{const g=e.target.closest('.gc');if(g){openViewer(S.cards,+g.dataset.i,'search');return}if(e.target.id=='smore')runSearch(true)};
+$('#res').onchange=e=>{if(e.target.id=='sord'){cfg.order=e.target.value;saveCfg();runSearch(false)}};
+// ---------- full-screen card ----------
+let V={list:[],i:0,src:'roll',face:0,art:false};
+function openViewer(list,i,src){V={list,i,src,face:0,art:false};const w=$('#vw');if(w.hidden){w.hidden=false;syncNosc();enter('vw',closeViewerDOM);setTimeout(()=>{try{$('#vx').focus({preventScroll:true})}catch(e){}},30)}drawViewer()}
+function closeViewerDOM(){$('#vw').hidden=true;$('#vi').removeAttribute('src');syncNosc()}
+function drawViewer(){
+ const c=V.list[V.i];if(!c)return;const box=$('#vimg'),img=$('#vi'),url=imgUrl(c,V.art?'art_crop':'large',V.face);
+ box.classList.toggle('art',V.art);box.classList.toggle('noi',!url);$('#vph').textContent=c.n+' (no picture available)';
+ if(url&&img.getAttribute('src')!==url){box.classList.add('ld');img.onload=()=>box.classList.remove('ld');img.onerror=()=>{box.classList.remove('ld');box.classList.add('noi')};img.src=url}
+ img.alt=(V.face&&c.f2?c.f2:c.n)+(V.art?' (art)':'');
+ $('#vn').textContent=V.face&&c.f2?c.f2:c.n;
+ $('#vc').textContent=V.src=='roll'?(V.list.length>1?'Roll '+(V.i+1)+' of '+V.list.length+' · swipe to look back':'Swipe left or tap the dice to roll again'):(V.i+1)+' of '+fmtN(V.src=='search'?S.total:V.list.length);
+ $('#vcap').textContent=[c.t,(c.sn?c.sn+' ('+c.s.toUpperCase()+(c.cn?' #'+c.cn:'')+')':''),c.a?'Illustrated by '+c.a:''].filter(Boolean).join(' · ');
+ $('#vflip').hidden=!c.im2;$('#vart').textContent=V.art?'Full card':'Art only';
+ $('#vsf').href=c.u||'https://scryfall.com/search?q='+encodeURIComponent('!"'+c.n+'"');
+ $('#vprev').hidden=V.i<=0;$('#vnext').hidden=V.src=='roll'||!(V.i<V.list.length-1||(V.src=='search'&&S.more));
+ $('#vroll').hidden=V.src!='roll'}
+async function vNext(){if(V.i<V.list.length-1){V.i++;V.face=0;drawViewer();return}
+ if(V.src=='roll'){roll(true);return}
+ if(V.src=='search'&&S.more&&!busy){await runSearch(true);V.list=S.cards;if(V.i<V.list.length-1){V.i++;V.face=0;drawViewer()}}}
+function vPrev(){if(V.i>0){V.i--;V.face=0;drawViewer()}}
+$('#vx').onclick=()=>back(closeViewerDOM);
+$('#vprev').onclick=vPrev;$('#vnext').onclick=vNext;$('#vroll').onclick=()=>roll(true);
+$('#vflip').onclick=()=>{V.face=V.face?0:1;drawViewer()};
+$('#vart').onclick=()=>{V.art=!V.art;drawViewer()};
+$('#vadd').onclick=()=>{const c=V.list[V.i];if(c)openAddDeck(c)};
+{let tx=null;const el=$('#vimg');
+ el.addEventListener('touchstart',e=>{tx=e.touches.length==1?[e.touches[0].clientX,e.touches[0].clientY]:null},{passive:true});
+ el.addEventListener('touchend',e=>{if(!tx)return;const t=e.changedTouches[0],dx=t.clientX-tx[0],dy=t.clientY-tx[1];tx=null;
+  if(Math.abs(dx)>60&&Math.abs(dx)>Math.abs(dy)*1.5)dx<0?vNext():vPrev()})}
+// ---------- history ----------
+function cleanHist(a){return Array.isArray(a)?a.slice(0,HMAX).map(x=>{const c=cleanCard(x);if(!c)return null;c.ts=typeof x.ts=='number'?x.ts:0;c.q=typeof x.q=='string'?x.q.slice(0,300):'';return c}).filter(Boolean):[]}
+let hist=cleanHist(ls.get('mtgr_hist',[]));
+const saveHist=()=>ls.set('mtgr_hist',hist);
+function addHist(c,q){hist=[Object.assign({},c,{ts:Date.now(),q})].concat(hist.filter(h=>h.id!=c.id)).slice(0,HMAX);saveHist();if(!$('#v3').hidden)drawHist()}
+const thumb=c=>c.im?'<img class="th" src="'+esc(imgUrl(c,'small'))+'" alt="" loading="lazy">':'<span class="th pph">🃏</span>';
+function drawHist(){
+ const box=$('#hist');
+ if(!hist.length){box.innerHTML='<p class="empty">No rolls yet. Pick a pool on the Randomize tab and tap the dice.</p>';return}
+ box.innerHTML='<div class="hh"><span class="legend" style="margin:0">'+hist.length+' recent roll'+(hist.length==1?'':'s')+'</span><button class="smallb" id="hclr" type="button">Clear history</button></div>'
+  +hist.map((h,i)=>'<div class="item" data-i="'+i+'">'+thumb(h)+'<div><b>'+esc(h.n)+'</b><small>'+esc(h.t)+'</small><small>'+esc(ago(h.ts))+(h.q?' · '+esc(h.q):'')+'</small></div><button class="x" type="button" data-x="'+i+'" aria-label="Remove '+esc(h.n)+'">×</button></div>').join('')}
+$('#hist').onclick=e=>{const t=e.target;
+ if(t.id=='hclr'){if(!t.dataset.arm){t.dataset.arm=1;t.textContent='Tap again to clear';setTimeout(()=>{if(t.isConnected){delete t.dataset.arm;t.textContent='Clear history'}},4000);return}hist=[];saveHist();drawHist();toast('History cleared');return}
+ const x=t.closest('[data-x]');if(x){hist.splice(+x.dataset.x,1);saveHist();drawHist();return}
+ const it=t.closest('.item');if(it)openViewer(hist.slice(),+it.dataset.i,'list')};
+// ---------- decks ----------
+function cleanDecks(a){if(!Array.isArray(a))return[];const seen=new Set();
+ return a.slice(0,200).map(d=>{if(!d||typeof d!='object')return null;
+  let id=typeof d.id=='string'&&/^d[a-z0-9]{2,30}$/.test(d.id)?d.id:'';if(!id||seen.has(id))id='d'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);seen.add(id);
+  return{id,n:(typeof d.n=='string'?d.n.trim().slice(0,60):'')||'Untitled deck',t:typeof d.t=='number'?d.t:Date.now(),
+   c:Array.isArray(d.c)?d.c.slice(0,500).map(x=>{const c=cleanCard(x);if(!c)return null;c.q=Math.max(1,Math.min(99,parseInt(x.q,10)||1));return c}).filter(Boolean):[]}}).filter(Boolean)}
+let decks=cleanDecks(ls.get('mtgr_decks',[])),curDeck=null,deckOrder=[];
+const saveDecks=()=>ls.set('mtgr_decks',decks);
+const deckBy=id=>decks.find(d=>d.id==id);
+const dcount=d=>d.c.reduce((n,c)=>n+c.q,0);
+function newDeck(n){const d={id:'d'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),n:String(n||'').trim().slice(0,60)||'Untitled deck',c:[],t:Date.now()};decks.unshift(d);saveDecks();return d}
+function addToDeck(d,c,q){const e=d.c.find(x=>x.id==c.id);if(e)e.q=Math.min(99,e.q+q);else{const x=cleanCard(c);if(!x)return;x.q=Math.min(99,q);d.c.push(x)}d.t=Date.now();saveDecks()}
+const DGR=['Creature','Planeswalker','Battle','Instant','Sorcery','Artifact','Enchantment','Land'];
+const grpOf=c=>{const t=String(c.t||'').split(' // ')[0];return DGR.find(g=>new RegExp('\\b'+g+'\\b').test(t))||'Other'};
+function deckColors(d){const s=new Set();d.c.forEach(c=>c.ci.split('').forEach(x=>s.add(x)));return'WUBRG'.split('').filter(x=>s.has(x))}
+const pips=a=>a.length?'<span class="pips">'+a.map(sym).join('')+'</span>':'';
+const plural=(n,w)=>fmtN(n)+' '+w+(n==1?'':'s');
+function drawDecks(){
+ const box=$('#dlist');decks.sort((a,b)=>b.t-a.t);
+ if(!decks.length){box.innerHTML='<p class="empty">No decks yet. Tap <b>+ New deck</b>. Then add cards from any card you roll or search: open it full screen and tap <b>+ Deck</b>.</p>';return}
+ box.innerHTML=decks.map(d=>{const cov=d.c.slice().sort((a,b)=>b.q-a.q).find(c=>c.im);
+  return'<div class="item" data-d="'+d.id+'">'+(cov?'<img class="cov" src="'+esc(imgUrl(cov,'art_crop'))+'" alt="" loading="lazy">':'<span class="cov pph">🃏</span>')+'<div><b>'+esc(d.n)+'</b><small>'+plural(dcount(d),'card')+' '+pips(deckColors(d))+'</small></div><span class="chev" aria-hidden="true">›</span></div>'}).join('')}
+$('#dlist').onclick=e=>{const it=e.target.closest('[data-d]');if(it)openDeck(it.dataset.d)};
+function openDeck(id,swap){curDeck=id;$('#dl').hidden=true;$('#dd').hidden=false;drawDeck();(swap?swapTop:enter)('deck',closeDeckDOM);window.scrollTo(0,0)}
+function closeDeckDOM(){curDeck=null;$('#dd').hidden=true;$('#dl').hidden=false;drawDecks()}
+function drawDeck(){
+ const d=deckBy(curDeck),box=$('#dd');if(!d){box.innerHTML='';return}
+ const n=dcount(d),lands=d.c.filter(c=>grpOf(c)=='Land').reduce((s,c)=>s+c.q,0),spells=d.c.filter(c=>grpOf(c)!='Land'),sn=spells.reduce((s,c)=>s+c.q,0),avg=sn?spells.reduce((s,c)=>s+c.cmc*c.q,0)/sn:0;
+ const groups={};d.c.forEach(c=>(groups[grpOf(c)]=groups[grpOf(c)]||[]).push(c));
+ deckOrder=[];let rows='';
+ DGR.concat('Other').forEach(g=>{const cs=groups[g];if(!cs)return;cs.sort((a,b)=>a.cmc-b.cmc||a.n.localeCompare(b.n));
+  rows+='<p class="dgr">'+esc(g)+' ('+cs.reduce((s,c)=>s+c.q,0)+')</p>'+cs.map(c=>{const i=deckOrder.push(c)-1;
+   return'<div class="dlr"><button class="dth" type="button" data-v="'+i+'" aria-label="View '+esc(c.n)+'">'+thumb(c)+'</button><button class="dnm" type="button" data-v="'+i+'"><b>'+esc(c.n)+'</b><small>'+mana(c.mc)+'</small></button><div class="qty"><button type="button" data-m="'+esc(c.id)+'" aria-label="One fewer '+esc(c.n)+'">−</button><span>'+c.q+'</span><button type="button" data-p="'+esc(c.id)+'" aria-label="One more '+esc(c.n)+'">+</button></div></div>'}).join('')});
+ box.innerHTML='<button class="back" id="ddback" type="button">‹ Decks</button><h2 class="dtitle">'+esc(d.n)+'</h2>'
+  +'<p class="legend" style="margin:4px 0 10px">'+plural(n,'card')+(n?' · '+plural(lands,'land')+(sn?' · average mana value '+avg.toFixed(2):'')+' '+pips(deckColors(d)):'')+'</p>'
+  +'<div class="links"><button id="dhand" type="button">🎲 Sample hand</button><button id="drand" type="button">🎲 Add random cards</button></div>'
+  +'<div class="links"><button id="dexp" type="button">Export</button><button id="dimp" type="button">Import</button><button id="dren" type="button">Rename</button><button id="ddel" type="button">Delete</button></div>'
+  +(rows||'<p class="empty">This deck is empty. Roll or search for cards, open one full screen and tap <b>+ Deck</b>, or use <b>Import</b> to paste a deck list.</p>')}
+$('#dd').onclick=e=>{const t=e.target.closest('button');if(!t)return;const d=deckBy(curDeck);if(!d)return;
+ if(t.dataset.v!=null){openViewer(deckOrder.slice(),+t.dataset.v,'list');return}
+ if(t.dataset.p||t.dataset.m){const c=d.c.find(x=>x.id==(t.dataset.p||t.dataset.m));if(!c)return;
+  if(t.dataset.p)c.q=Math.min(99,c.q+1);else if(--c.q<1){d.c=d.c.filter(x=>x!==c);toast('Removed '+c.n)}
+  d.t=Date.now();saveDecks();drawDeck();return}
+ switch(t.id){
+  case'ddback':back(closeDeckDOM);break;
+  case'dhand':openHand(d);break;
+  case'drand':openRandAdd(d);break;
+  case'dexp':openExport(d);break;
+  case'dimp':openImport(d);break;
+  case'dren':openNameSheet('Rename deck',d.n,'Save',n=>{d.n=n||d.n;d.t=Date.now();saveDecks();closeSheet();drawDeck()});break;
+  case'ddel':if(!t.dataset.arm){t.dataset.arm=1;t.textContent='Tap again';setTimeout(()=>{if(t.isConnected){delete t.dataset.arm;t.textContent='Delete'}},4000);return}
+   decks=decks.filter(x=>x!==d);saveDecks();back(closeDeckDOM);toast('Deck deleted')}};
+function openNameSheet(title,val,btn,done){
+ const b=openSheet(sheetHead(esc(title))+'<input type="text" id="nmi" maxlength="60" aria-label="Deck name" placeholder="Deck name" style="width:100%"><button class="pri" id="nmo" type="button" style="margin-top:10px">'+esc(btn)+'</button>');
+ const i=$('#nmi');i.value=val||'';const ok=()=>done(i.value.trim());$('#nmo').onclick=ok;i.onkeydown=e=>{if(e.key=='Enter')ok()};
+ if(finePtr)i.focus();return b}
+$('#dnew').onclick=()=>openNameSheet('New deck','','Create deck',n=>{const d=newDeck(n);closeSheetDOM('sh');openDeck(d.id,true)});
+// Add to deck (from the full-screen card)
+function openAddDeck(c){
+ const list=decks.slice().sort((a,b)=>(b.id==cfg.last)-(a.id==cfg.last)||b.t-a.t);
+ const b=openSheet(sheetHead('Add to deck')+'<p class="legend">'+esc(c.n)+'</p><div class="mlist">'+list.map(d=>{const h=d.c.find(x=>x.id==c.id);
+   return'<button class="menub" type="button" data-d="'+d.id+'"><span aria-hidden="true">🃏</span> '+esc(d.n)+'<small>'+(h?h.q+' in deck':plural(dcount(d),'card'))+'</small></button>'}).join('')+'</div>'
+  +'<div class="row"><input type="text" id="ndn" maxlength="60" placeholder="'+(decks.length?'Or start a new deck':'Name your first deck')+'" aria-label="New deck name"><button id="ndc" type="button">Create</button></div>','sh2');
+ const add=d=>{addToDeck(d,c,1);cfg.last=d.id;saveCfg();const h=d.c.find(x=>x.id==c.id);closeSheet('sh2');toast('Added to “'+d.n+'” ('+(h?h.q:1)+(h&&h.q>1?' copies':' copy')+')')};
+ b.onclick=e=>{const t=e.target.closest('[data-d],#ndc');if(!t)return;
+  if(t.id=='ndc'){const n=$('#ndn').value.trim();if(!n){$('#ndn').focus();return}add(newDeck(n));return}
+  const d=deckBy(t.dataset.d);if(d)add(d)};
+ $('#ndn').onkeydown=e=>{if(e.key=='Enter')$('#ndc').click()}}
+// Sample hand: shuffles the deck and draws seven
+let H=null;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+function openHand(d){const lib=[];d.c.forEach(c=>{for(let i=0;i<c.q;i++)lib.push(c)});if(!lib.length){toast('Add some cards to this deck first.');return}
+ shuffle(lib);H={lib,hand:lib.splice(0,7)};drawHand()}
+function drawHand(){
+ const b=openSheet(sheetHead('Sample hand')+'<p class="legend">'+H.hand.length+' in hand · '+H.lib.length+' left in the library</p><div class="hgrid">'
+  +H.hand.map((c,i)=>'<button type="button" class="gc" data-h="'+i+'" aria-label="'+esc(c.n)+'">'+(c.im?'<img src="'+esc(imgUrl(c,'normal'))+'" alt="">':'<span class="noim">'+esc(c.n)+'</span>')+'</button>').join('')+'</div>'
+  +'<div class="links"><button id="hnew" type="button" class="pri">🎲 New hand</button><button id="hdraw" type="button"'+(H.lib.length?'':' disabled')+'>Draw a card</button></div>');
+ b.onclick=e=>{const t=e.target.closest('button');if(!t)return;
+  if(t.dataset.h!=null)openViewer(H.hand.slice(),+t.dataset.h,'list');
+  else if(t.id=='hnew'){const d=deckBy(curDeck);if(d)openHand(d)}
+  else if(t.id=='hdraw'&&H.lib.length){H.hand.push(H.lib.shift());drawHand()}}}
+// Add random cards from the pool on the Randomize tab
+function openRandAdd(d){
+ const b=openSheet(sheetHead('Add random cards')+'<p class="legend">Rolls cards from your pool on the Randomize tab and adds them to “'+esc(d.n)+'”.</p><p style="margin:0 0 10px"><b>Pool:</b> '+esc(descPool())+'</p>'
+  +'<div class="links">'+[1,5,10,20].map(n=>'<button type="button" data-n="'+n+'">'+n+'</button>').join('')+'</div><p class="legend" id="ras" role="status"></p>');
+ b.onclick=async e=>{const t=e.target.closest('[data-n]');if(!t||busy)return;const n=+t.dataset.n;busy=true;b.querySelectorAll('[data-n]').forEach(x=>x.disabled=true);let got=0;
+  try{for(let i=0;i<n;i++){if($('#sh').hidden)break;$('#ras').textContent='Rolling '+(i+1)+' of '+n+'…';const c=await pickRandom();addToDeck(d,c,1);got++}
+   $('#ras').textContent='Added '+plural(got,'card')+'.'}
+  catch(err){$('#ras').textContent=(got?'Added '+plural(got,'card')+', then stopped: ':'')+errText(err)}
+  finally{busy=false;b.querySelectorAll('[data-n]').forEach(x=>x.disabled=false);if(curDeck==d.id)drawDeck()}}}
+// Export / import deck lists ("4 Lightning Bolt", one per line). Like MTG Arena, only split cards keep
+// both halves ("Fire // Ice"); double-faced and adventure cards use their front name.
+const front=n=>String(n).split(/\s*\/\/\s*/)[0];
+const listName=c=>['split','aftermath'].includes(c.l)?c.n:front(c.n);
+function deckText(d){const by={};d.c.forEach(c=>{const n=listName(c);by[n]=(by[n]||0)+c.q});return Object.keys(by).map(n=>by[n]+' '+n).join('\n')}
+async function shareText(t,title,file){
+ if(window.Android&&Android.share){Android.share(t);return}
+ try{if(navigator.share){await navigator.share({title,text:t});return}}catch(e){if(e.name=='AbortError')return}
+ const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([t],{type:'text/plain'}));a.download=file;document.body.appendChild(a);a.click();a.remove()}
+async function copyText(t,ta){try{await navigator.clipboard.writeText(t);toast('Copied')}catch(e){ta.select();try{document.execCommand('copy');toast('Copied')}catch(x){toast('Select the text and copy it by hand.')}}}
+function openExport(d){
+ const t=deckText(d);if(!t){toast('This deck is empty.');return}
+ openSheet(sheetHead('Export “'+esc(d.n)+'”')+'<p class="legend">One card per line. Paste it into MTG Arena, Moxfield, Archidekt or any deck site.</p><textarea id="dxt" rows="8" readonly></textarea><div class="links"><button id="dxs" type="button">Share or save</button><button id="dxc" type="button">Copy</button></div>');
+ $('#dxt').value=t;$('#dxs').onclick=()=>shareText(t,d.n,d.n.replace(/[^\w -]+/g,'').trim()+'.txt');$('#dxc').onclick=()=>copyText(t,$('#dxt'))}
+function parseList(txt){const out=[];
+ for(let line of String(txt).split(/\r?\n/)){line=line.replace(/\s+/g,' ').trim();
+  if(!line||/^(\/\/|#)/.test(line)||/^(deck|main ?deck|sideboard|commander|companion|maybeboard|about|name .*)$/i.test(line))continue;
+  let q=1,rest=line.replace(/^SB:\s*/i,'');const m=rest.match(/^(\d{1,3})\s*x?\s+(.+)$/i);if(m){q=Math.max(1,Math.min(99,+m[1]));rest=m[2]}
+  rest=rest.replace(/\s+\*[A-Z]+\*$/,'');let set='',cn='';const sm=rest.match(/^(.*?)\s*\(([A-Za-z0-9]{2,6})\)(?:\s+(\S+))?$/);if(sm){rest=sm[1];set=sm[2].toLowerCase();cn=sm[3]||''}
+  if(rest)out.push({q,name:rest,set,cn})}
+ return out.slice(0,400)}
+// Scryfall's collection lookup only knows front names ("Fire" finds Fire // Ice), so that is what gets sent.
+const nm=s=>front(s).toLowerCase().replace(/\s+/g,' ').trim();
+async function lookupCards(lines,note){
+ const found=[],miss=[];
+ for(let i=0;i<lines.length;i+=75){const chunk=lines.slice(i,i+75);note('Looking up cards '+(i+1)+'–'+(i+chunk.length)+' of '+lines.length+'…');
+  const j=await api('/cards/collection',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({identifiers:chunk.map(l=>l.set&&l.cn?{set:l.set,collector_number:l.cn}:l.set?{name:front(l.name),set:l.set}:{name:front(l.name)})})});
+  const cs=(j.data||[]).map(slim);
+  chunk.forEach(l=>{const c=cs.find(f=>l.set&&l.cn?f.s==l.set&&f.cn.toLowerCase()==l.cn.toLowerCase():nm(f.n)==nm(l.name)&&(!l.set||f.s==l.set));c?found.push([c,l.q]):miss.push(l)})}
+ return{found,miss}}
+function openImport(d){
+ openSheet(sheetHead('Import cards')+'<p class="legend">Paste a deck list, one card per line, like <b>4 Lightning Bolt</b> or <b>1 Sol Ring (C21) 263</b>. The cards are added to “'+esc(d.n)+'”.</p><textarea id="dit" rows="8" placeholder="4 Lightning Bolt&#10;2 Counterspell"></textarea><button class="pri" id="dig" type="button">Add cards</button><p class="legend" id="dis" role="status" style="margin-top:10px"></p>');
+ $('#dig').onclick=async()=>{const lines=parseList($('#dit').value),st=$('#dis');if(!lines.length){st.textContent='Paste at least one card name first.';return}
+  if(busy)return;busy=true;$('#dig').disabled=true;
+  try{let{found,miss}=await lookupCards(lines,m=>st.textContent=m);
+   if(miss.some(l=>l.set)){const again=await lookupCards(miss.filter(l=>l.set).map(l=>({q:l.q,name:l.name,set:'',cn:''})),m=>st.textContent=m);found=found.concat(again.found);miss=miss.filter(l=>!l.set).concat(again.miss)}
+   found.forEach(([c,q])=>addToDeck(d,c,q));drawDeck();
+   st.innerHTML='Added '+plural(found.reduce((s,f)=>s+f[1],0),'card')+'.'+(miss.length?' Couldn’t find: '+esc(miss.map(l=>l.name).join(', '))+'.':'');if(!miss.length)$('#dit').value=''}
+  catch(e){st.textContent=errText(e)}
+  finally{busy=false;$('#dig').disabled=false}}}
+// ---------- the ▾ All list ----------
+let PK={k:'',sort:'c'};
+async function openPicker(){
+ const k=pool.k;if(KBY[k].nolist)return;PK={k,sort:PK.k==k?PK.sort:'c'};
+ $('#pkt').textContent=KBY[k].lab;$('#pkq').value='';$('#pks').hidden=!isTag(k);[...$('#pks').children].forEach(b=>b.className=b.dataset.o==PK.sort?'on':'');
+ $('#pk').hidden=false;syncNosc();enter('pk',closePickerDOM);$('#pkn').textContent='';$('#pkl').innerHTML='<p class="legend">Loading the list…</p>';
+ try{await loadList(k)}catch(e){$('#pkl').innerHTML='<p class="legend">Couldn’t load the list. '+esc(errText(e))+' You can still type a value in the box.</p>';return}
+ if(PK.k==k&&!$('#pk').hidden){drawPicker();if(finePtr)$('#pkq').focus()}}
+function closePickerDOM(){$('#pk').hidden=true;$('#pkl').innerHTML='';syncNosc()}
+function drawPicker(){
+ const k=PK.k,q=$('#pkq').value.trim();let m=matchList(LISTS[k]||[],q,k,0);
+ if(isTag(k)&&PK.sort=='a')m=m.slice().sort((a,b)=>a.v.localeCompare(b.v));
+ const lim=300;let g=null,h='';
+ if(q&&!m.some(it=>it.v.toLowerCase()==q.toLowerCase())&&!['set','color','rarity','format','mv'].includes(k))h+='<button class="pki use" type="button" data-v="'+esc(q)+'"><span>Use “'+esc(isTag(k)?slug(q):q)+'”</span></button>';
+ for(const it of m.slice(0,lim)){if(!q&&!(isTag(k))&&it.g&&it.g!==g){g=it.g;h+='<p class="aisle">'+esc(g)+'</p>'}
+  h+='<button class="pki" type="button" data-v="'+esc(it.v)+'"><span>'+esc(label(k,it))+'</span>'+(it.c?'<small>'+fmtN(it.c)+' card'+(it.c==1?'':'s')+'</small>':it.s?'<small>'+esc(it.s.split(' · ')[1]||'')+'</small>':'')+'</button>'}
+ $('#pkn').textContent=m.length>lim?'Showing '+lim+' of '+fmtN(m.length)+'. Type above to narrow it down.':fmtN(m.length)+(m.length==1?' match':' matches');
+ $('#pkl').innerHTML=h||'<p class="legend">Nothing matches.</p>';$('#pkl').scrollTop=0}
+$('#pick').onclick=openPicker;
+$('#pkx').onclick=()=>back(closePickerDOM);
+$('#pk').addEventListener('click',e=>{if(e.target.id=='pk')back(closePickerDOM)});
+$('#pkq').oninput=()=>{clearTimeout(drawPicker.t);drawPicker.t=setTimeout(drawPicker,120)};
+$('#pks').onclick=e=>{const b=e.target.closest('[data-o]');if(!b)return;PK.sort=b.dataset.o;[...$('#pks').children].forEach(x=>x.className=x.dataset.o==PK.sort?'on':'');drawPicker()};
+$('#pkl').onclick=e=>{const b=e.target.closest('[data-v]');if(!b)return;setVal(b.dataset.v);back(closePickerDOM)};
+// ---------- export / import settings ----------
+function backupText(){return JSON.stringify({app:'MTG Randomizer',version:1,exported:new Date().toISOString(),settings:cfg,pool,decks,history:hist,theme},null,1)}
+function bkPanel(html){const b=$('#bk');b.className='why';b.innerHTML=html;b.hidden=false;b.scrollIntoView({behavior:'smooth',block:'nearest'})}
+async function saveBackup(t){
+ if(window.Android&&Android.share){Android.share(t);return}
+ const f=new File([t],'mtg-randomizer-backup.json',{type:'application/json'});
+ try{if(navigator.canShare&&navigator.canShare({files:[f]})){await navigator.share({files:[f],title:'MTG Randomizer backup'});return}}catch(e){if(e.name=='AbortError')return}
+ const a=document.createElement('a');a.href=URL.createObjectURL(f);a.download='mtg-randomizer-backup.json';document.body.appendChild(a);a.click();a.remove()}
+$('#xs').onclick=()=>{const t=backupText();
+ bkPanel('<b>Backup ready</b><p>Save it somewhere you can reach from your new device (Files, email or notes), then use Import Settings there.</p><textarea readonly rows="5" id="bt"></textarea><div class="links"><button id="bsave">Save or share</button><button id="bcopy">Copy</button></div>');
+ $('#bt').value=t;$('#bsave').onclick=()=>saveBackup(t);$('#bcopy').onclick=()=>copyText(t,$('#bt'))};
+$('#is').onclick=()=>{const paste=window.Android&&!IOSAPP;
+ bkPanel('<b>Import settings</b><p>Paste your backup text below'+(paste?'':', or choose the backup file')+'. Decks in the backup are added to the ones you have (a deck that is in both is replaced by the backup copy).</p><textarea id="bt" rows="5" placeholder="Paste backup text here"></textarea><div class="links">'+(paste?'':'<button id="bpick">Choose file</button>')+'<button id="bgo">Import</button></div>');
+ if($('#bpick'))$('#bpick').onclick=()=>$('#bf').click();$('#bgo').onclick=()=>importBackup($('#bt').value)};
+$('#bf').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(f)importBackup(await f.text())};
+function importBackup(raw){
+ let d;try{d=JSON.parse(String(raw).trim())}catch(e){d=null}
+ if(!d||d.app!=='MTG Randomizer'){toast('That doesn’t look like an MTG Randomizer backup');return}
+ cfg=cleanCfg(d.settings);saveCfg();pool=cleanPool(d.pool);savePool();
+ const nd=cleanDecks(d.decks),ids=new Set(nd.map(x=>x.id));decks=nd.concat(decks.filter(x=>!ids.has(x.id)));saveDecks();
+ hist=cleanHist(d.history).concat(hist).sort((a,b)=>b.ts-a.ts).filter((h,i,a)=>a.findIndex(x=>x.id==h.id)==i).slice(0,HMAX);saveHist();
+ if(d.theme)setTheme(d.theme);
+ drawAll();bkPanel('<b>Backup imported</b><p>'+plural(nd.length,'deck')+' and your settings were restored.</p>');toast('Backup imported')}
+// ---------- update notices ----------
+// Web: compares this page with the live copy and offers a reload. Apps: checks the latest GitHub release.
+const UPD={api:'https://api.github.com/repos/Pixeledberry/MTG-Randomizer/releases/latest',snoozeDays:3,every:12*36e5};
+const APPKIND=IOSAPP?'ios':window.Android?'android':'web';
+const vcmp=(a,b)=>{const p=s=>String(s).replace(/^v/i,'').split('.').map(n=>parseInt(n,10)||0),x=p(a),y=p(b);for(let i=0;i<Math.max(x.length,y.length);i++){const d=(x[i]||0)-(y[i]||0);if(d)return d>0?1:-1}return 0};
+let updSt=(o=>o&&typeof o=='object'&&!Array.isArray(o)?o:{})(ls.get('mtgr_upd',{}));
+const saveUpd=()=>ls.set('mtgr_upd',updSt);
+const canAutoInstall=()=>APPKIND=='android'&&!!updSt.apk&&!!(window.Android&&Android.installUpdate);
+async function latestInfo(){
+ if(APPKIND=='web'){const r=await fetchT(location.href.split('#')[0],{cache:'no-store'},12000);if(!r.ok)throw new Error('http '+r.status);const m=(await r.text()).match(/const APPV='([^']+)'/);if(!m)throw new Error('no version');return{v:m[1],ready:true}}
+ const r=await fetchT(UPD.api,{cache:'no-store'},12000);if(!r.ok)throw new Error('http '+r.status);const j=await r.json();
+ const as=Array.isArray(j.assets)?j.assets:[],file=ext=>{const a=as.find(a=>a&&typeof a.name=='string'&&a.name.toLowerCase().endsWith(ext));return a&&/^https:\/\/github\.com\/pixeledberry\/[\w.-]+\/releases\/download\//i.test(a.browser_download_url)?a.browser_download_url:''};
+ const apk=file('.apk'),ipa=file('.ipa');
+ return{v:String(j.tag_name||'').replace(/^v/i,''),url:/^https:\/\/github\.com\//.test(j.html_url)?j.html_url:'',apk,ready:APPKIND=='android'?!!apk:!!ipa}}
+async function checkUpdates(manual){
+ if(APPKIND=='web'&&!/^https?:$/.test(location.protocol)){if(manual)toast('Update checks only work on the online version.');return}
+ try{const i=await latestInfo();updSt.t=Date.now();
+  if(!i.v||vcmp(i.v,APPV)<=0){delete updSt.v;saveUpd();hideUpd();if(manual)toast('You have the latest version (v'+APPV+').');return}
+  if(!i.ready){saveUpd();if(manual)toast('Version '+i.v+' is still being built. Check again in a few minutes.');return}
+  updSt.v=i.v;updSt.url=i.url||'';updSt.apk=i.apk||'';saveUpd();showUpd(manual)
+ }catch(e){if(manual)toast('Couldn’t check for updates. Check your connection.')}}
+function hideUpd(){const b=$('#upd');b.hidden=true;b.innerHTML=''}
+function showUpd(force){
+ const v=updSt.v,b=$('#upd');if(!v||vcmp(v,APPV)<=0){hideUpd();return}
+ if(!force&&updSt.off)return;
+ const sz=updSt.snooze;if(!force&&sz&&sz.v==v&&Date.now()<sz.until)return;
+ let msg,btn;
+ if(APPKIND=='web'){msg='A new version of MTG Randomizer is available.';btn='<button class="pri" id="updgo">Reload</button>'}
+ else if(canAutoInstall()){msg='MTG Randomizer v'+esc(v)+' is available.';btn='<button class="pri" id="updgo">Update</button>'}
+ else{msg='MTG Randomizer v'+esc(v)+' is available.'+(APPKIND=='ios'?' Install it with your sideloading tool (AltStore, SideStore or Sideloadly).':' Download the new .apk from GitHub and open it to install.');btn=updSt.url?'<a class="pri" id="updget" href="'+esc(updSt.url)+'">Get it</a>':''}
+ b.innerHTML='<p id="updm">'+msg+'</p><div class="links">'+btn+'<button id="updno">Not now</button>'+(updSt.off?'<button id="updon">Turn update reminders back on</button>':'<button id="updoff">Don’t remind me</button>')+'</div>'+(updSt.off?'<p class="legend">Update reminders are off. This check ran because you asked for it.</p>':'');b.hidden=false}
+function updBusy(on,text){const m=$('#updm');if(m&&text)m.textContent=text;document.querySelectorAll('#upd button').forEach(x=>x.disabled=!!on)}
+$('#upd').onclick=e=>{const t=e.target.closest('button,a');if(!t)return;
+ if(t.id=='updno'){updSt.snooze={v:updSt.v,until:Date.now()+UPD.snoozeDays*864e5};saveUpd();hideUpd();toast('Okay. We’ll remind you again in '+UPD.snoozeDays+' days.');return}
+ if(t.id=='updoff'){updSt.off=true;delete updSt.snooze;saveUpd();hideUpd();toast('Okay, no more update reminders. You can still check any time from the menu.');return}
+ if(t.id=='updon'){delete updSt.off;saveUpd();showUpd(true);toast('Update reminders are back on.');return}
+ if(t.id=='updallow'){try{Android.allowUpdates()}catch(x){}t.id='updgo';t.textContent='Update';return}
+ if(t.id!='updgo')return;
+ if(APPKIND=='web'){location.reload();return}
+ if(!canAutoInstall())return;
+ let ok=true;try{ok=Android.canInstallUpdates()}catch(x){}
+ if(!ok){$('#updm').textContent='To update, MTG Randomizer needs permission to install apps. Tap Allow, switch on “Allow from this source”, then come back here and tap Update.';t.id='updallow';t.textContent='Allow';return}
+ updBusy(true,'Downloading the update… 0%');
+ try{Android.installUpdate(updSt.apk)}catch(x){window.onUpdateError(x.message)}};
+window.onUpdateProgress=p=>{const m=$('#updm');if(m)m.textContent='Downloading the update… '+Math.max(0,Math.min(100,p|0))+'%'};
+window.onUpdateReady=()=>updBusy(false,'Download finished. Tap Install on the next screen to finish updating. Your decks and settings are kept.');
+window.onUpdateError=m=>updBusy(false,'The update didn’t download'+(m?' ('+String(m).slice(0,80)+')':'')+'. Check your connection and tap Update to try again.');
+$('#mupd').onclick=()=>{back(closeDrawerDOM);checkUpdates(true)};
+// ---------- in-app changelog ----------
+// The last 5 changelog entries live in <script type="text/markdown" id="chlog"> (copied from the README).
+function mdLite(md){
+ const inl=x=>esc(x).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`([^`]+)`/g,'<code>$1</code>').replace(/\[([^\]]+)\]\((https:\/\/[^)\s]+)\)/g,'<a href="$2" target="_blank" rel="noopener">$1</a>');
+ let html='',depth=-1;const close=d=>{while(depth>d){html+='</li></ul>';depth--}};
+ String(md||'').split('\n').forEach(line=>{
+  const h=line.match(/^#{2,4}\s+(.*)/);
+  if(h){close(-1);const t=h[1].replace(/\s*\(latest\)\s*$/i,'').trim();html+='<h3>'+esc(t)+(t.replace(/^v/i,'')==APPV?' <small>(this version)</small>':'')+'</h3>';return}
+  const b=line.match(/^(\s*)[-*]\s+(.*)/);
+  if(b){const d=Math.floor(b[1].replace(/\t/g,'  ').length/2);if(d>depth){while(depth<d){html+='<ul><li>';depth++}}else{close(d);html+='</li><li>'}html+=inl(b[2]);return}
+  if(line.trim()){close(-1);html+='<p>'+inl(line.trim())+'</p>'}});
+ close(-1);return html}
+function closeChlDOM(){const o=$('#chl');if(o)o.hidden=true;syncNosc()}
+function openChangelog(){
+ let o=$('#chl');
+ if(!o){o=document.createElement('div');o.id='chl';o.hidden=true;
+  o.innerHTML='<div class="chp" role="dialog" aria-modal="true" aria-labelledby="chlt"><div class="chh"><h2 id="chlt">Changelog</h2><button id="chlx" aria-label="Close changelog">×</button></div><div class="chb" id="chlb"></div></div>';
+  document.body.appendChild(o);
+  o.addEventListener('click',e=>{if(e.target===o||e.target.closest('#chlx'))back(closeChlDOM)})}
+ $('#chlb').innerHTML=(mdLite(($('#chlog')||{}).textContent||'')||'<p>The changelog isn’t available.</p>')+'<p class="chfull"><a href="https://github.com/Pixeledberry/MTG-Randomizer#changelog" target="_blank" rel="noopener">See older updates on GitHub</a></p>';
+ o.hidden=false;syncNosc();$('#chlb').scrollTop=0;setTimeout(()=>{try{$('#chlx').focus()}catch(e){}},30)}
+$('#mchl').onclick=()=>{closeDrawerDOM();swapTop('chl',closeChlDOM);openChangelog()};
+// ---------- start ----------
+function drawAll(){drawKinds();drawVal();drawPool();drawSug();drawOpts();drawSettings();drawMode();drawThemes();drawDecks();drawHist();if(curDeck)drawDeck()}
+$('#logo').src=document.querySelector('link[rel=icon]').href;
+$('#ftv').textContent=APPV;$('#mupdv').textContent='v'+APPV;
+dice(false);drawAll();useList(pool.k);
+if(navigator.onLine&&!ls.get('mtgr_cat_type',null))setTimeout(()=>useList('type'),1500);
+showUpd(false);
+if(!updSt.off&&(!updSt.t||Date.now()-updSt.t>(APPKIND=='web'?30*6e4:UPD.every)))setTimeout(()=>checkUpdates(false),4000);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState=='visible'&&!updSt.off&&Date.now()-(updSt.t||0)>(APPKIND=='web'?30*6e4:UPD.every))checkUpdates(false)});
+</script>
+</body></html>

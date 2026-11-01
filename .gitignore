@@ -14,5 +14,8 @@ _patch_tail_b.html
 _patch_tail_c.html
 _gen_icons.py
 
+# Local helper scripts used by the AIs (sync, tag refresh, icons)
+tools/
+
 # The TickedOff project used as the reference for this repo's layout
 tickedoff-reference/

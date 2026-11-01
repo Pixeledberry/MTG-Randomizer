@@ -1,12 +1,18 @@
 {
   "name": "MTG Randomizer",
   "short_name": "MTG Randomizer",
-  "description": "Roll a random Magic: The Gathering card from your own filtered pool. Powered by the Scryfall API.",
+  "description": "Pick a pool of Magic: The Gathering cards by type, function or art, roll the dice and see a random card full screen. Build decks too.",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#0f5132",
-  "theme_color": "#0f5132",
+  "background_color": "#141414",
+  "theme_color": "#141414",
   "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
     {
       "src": "icon-512.png",
       "sizes": "512x512",
