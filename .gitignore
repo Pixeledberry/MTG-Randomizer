@@ -1,0 +1,18 @@
+# OS noise
+.DS_Store
+Thumbs.db
+
+# Local-only AI instructions. Keep this line so CLAUDE.md is never uploaded to GitHub.
+CLAUDE.md
+
+# Development scaffolding and local copies that never ship
+index.html.bak
+_patch.js
+_patch_css.css
+_patch_tail_a.html
+_patch_tail_b.html
+_patch_tail_c.html
+_gen_icons.py
+
+# The TickedOff project used as the reference for this repo's layout
+tickedoff-reference/

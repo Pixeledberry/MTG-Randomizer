@@ -1,0 +1,26 @@
+name: MTGRandomizer
+options:
+  bundleIdPrefix: com.pixeledberry
+  deploymentTarget:
+    iOS: "15.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    MARKETING_VERSION: "1.0.0"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  MTGRandomizer:
+    type: application
+    platform: iOS
+    sources:
+      - MTGRandomizer
+    info:
+      path: MTGRandomizer/Info.plist
+      properties:
+        CFBundleDisplayName: MTG Randomizer
+        UILaunchScreen: {}
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.pixeledberry.mtgrandomizer
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        TARGETED_DEVICE_FAMILY: "1,2"
